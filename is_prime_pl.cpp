@@ -154,7 +154,7 @@ void factor(mpz_t n, vector<unsigned long>& primes, vector<unsigned long>& expon
 		mpz_divexact(n, n, p);
 		mpz_mod(temp, n, p);
 		mpz_add_ui(exp, exp, 1);
-		while(mpz_cmp_ui(temp, 0) != 0){
+		while(mpz_cmp_ui(temp, 0) == 0){
 			mpz_add_ui(exp, exp, 1);
 			mpz_divexact(n, n, p);
 			mpz_mod(temp, n, p);
@@ -163,6 +163,8 @@ void factor(mpz_t n, vector<unsigned long>& primes, vector<unsigned long>& expon
 		// add results to the vectors;
 		primes.push_back(mpz_get_ui(p));
 		exponents.push_back(mpz_get_ui(exp));
+
+		//std::cout << "pushed p = " << mpz_get_ui(p) << " and e = " << mpz_get_ui(exp) << "\n";
 	} // end while n is not 1
 
 	// clean up mpz_t vars
@@ -173,9 +175,9 @@ void factor(mpz_t n, vector<unsigned long>& primes, vector<unsigned long>& expon
 able to print a factorization that is in the form created above
 */
 void print_factors(vector<unsigned long>& primes, vector<unsigned long>& exponents){
-  if(primes.size() != exponents.size()) cout << "Error in print_factors, vectors are not the same size\n";
-  for(long i =0; i < primes.size(); i++){
-    cout << primes.at(i) << "^" << exponents.at(i) << " * ";
-  }
-  cout << "\n";
+	if(primes.size() != exponents.size()) cout << "Error in print_factors, vectors are not the same size\n";
+	for(long i =0; i < primes.size(); i++){
+	    cout << primes.at(i) << "^" << exponents.at(i) << " * ";
+	}
+	cout << "\n";
 } 
