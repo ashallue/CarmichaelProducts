@@ -10,8 +10,8 @@ int main(){
 	mpz_set_ui(nminus, 100);
 
 	// factor 100
-	vector<long> nprimes;
-	vector<long> nexps;
+	vector<unsigned long> nprimes;
+	vector<unsigned long> nexps;
 	factor(nminus, nprimes, nexps);
 	print_factors(nprimes, nexps);
 	bool primeyes = isPrimePL(n, nprimes, nexps, true);
