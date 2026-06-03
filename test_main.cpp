@@ -48,7 +48,7 @@ int main(){
 	mpz_clear(n); mpz_clear(nminus);
 	delete[] fs;
 
-	bool test1 = prove_primePL_all(1000);
+	bool test1 = prove_primePL_random(1000, 30);
 	if(test1){
 		std::cout << "test 1 passed\n";
 	}else{

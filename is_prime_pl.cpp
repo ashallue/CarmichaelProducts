@@ -244,23 +244,6 @@ void sieve_factor(mpz_t n, vector<unsigned long>& primes, vector<unsigned long>&
 
 /* testing functions for primality proving algs.  Written by Andrew Shallue and Gemini 3.5 flash, June 2026
 */
-// Helper function to check if the prime factorization of n-1 is complete
-bool is_factorization_complete(const mpz_t n_minus_1, const std::vector<unsigned long>& primes, const std::vector<unsigned long>& exponents) {
-    mpz_t product;
-    mpz_init_set_ui(product, 1);
-    
-    for (size_t i = 0; i < primes.size(); i++) {
-        mpz_t term;
-        mpz_init(term);
-        mpz_ui_pow_ui(term, primes[i], exponents[i]);
-        mpz_mul(product, product, term);
-        mpz_clear(term);
-    }
-    
-    int comparison = mpz_cmp(product, n_minus_1);
-    mpz_clear(product);
-    return comparison == 0;
-}
 
 // this function applies isPrimePL to every prime number up to a trial division bound
 bool prove_primePL_all(unsigned long trial_bound) {
@@ -311,6 +294,7 @@ bool prove_primePL_all(unsigned long trial_bound) {
 // this function applies isPrimePL to num_trials many random mpz_t ints of given bit length
 bool prove_primePL_random(unsigned long num_trials, unsigned long bit_length) {
     if (bit_length < 2) {
+		std::cout << "Error in prove_primePL_random, bit_length too small\n";
         return false;
     }
     
@@ -321,10 +305,9 @@ bool prove_primePL_random(unsigned long num_trials, unsigned long bit_length) {
     unsigned long successful_trials = 0;
     bool all_passed = true;
     
-    mpz_t n, n_minus_1, temp_n_minus_1;
+    mpz_t n, n_minus_1;
     mpz_init(n);
     mpz_init(n_minus_1);
-    mpz_init(temp_n_minus_1);
     
     // To prevent an infinite loop if bit_length is too large for trial division to factor n-1
     unsigned long attempts = 0;
@@ -342,27 +325,22 @@ bool prove_primePL_random(unsigned long num_trials, unsigned long bit_length) {
         // Check if the candidate is probably prime
         if (mpz_probab_prime_p(n, 25) > 0) {
             mpz_sub_ui(n_minus_1, n, 1);
-            mpz_set(temp_n_minus_1, n_minus_1);
             
             std::vector<unsigned long> primes;
             std::vector<unsigned long> exponents;
-            
-            trial_factor(temp_n_minus_1, primes, exponents);
-            
-            // Pocklington-Lehmer requires a known factorization of n-1
-            if (is_factorization_complete(n_minus_1, primes, exponents)) {
-                bool result = isPrimePL(n, primes, exponents, false);
-                if (!result) {
-                    all_passed = false;
-                }
-                successful_trials++;
-            }
+
+			// factor n-1 and apply primality test
+            trial_factor(n_minus_1, primes, exponents);
+			bool result = isPrimePL(n, primes, exponents, false);
+			if (!result) {
+				all_passed = false;
+			}
+			successful_trials++;
         }
     }
     
     mpz_clear(n);
     mpz_clear(n_minus_1);
-    mpz_clear(temp_n_minus_1);
     gmp_randclear(state);
     
     // Returns true only if we successfully performed the requested number of trials and all passed
