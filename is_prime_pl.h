@@ -2,6 +2,7 @@
 #include <vector>
 #include <gmp.h>
 #include <cstring>
+#include "math.h"
 
 using namespace std;
 
@@ -27,3 +28,15 @@ are not empty they will be cleared.
 */
 void print_factors(vector<unsigned long>& primes, vector<unsigned long>& exponents);
 void factor(mpz_t n, vector<unsigned long>& primes, vector<unsigned long>& exponents);
+
+/* Given an array which is assumed to store integer i at position i, and given a bound which is the size of the array,
+  create a factor sieve, i.e. the array is transformed to store the largest prime factor of index i
+*/
+void factor_sieve(unsigned long* nums, unsigned long B);
+
+/* testing functions for primality proving algs.  Written by Andrew Shallue and Gemini 3.5 flash, June 2026
+*/
+// this function applies isPrimePL to every prime number up to a trial division bound
+bool prove_primePL_all(unsigned long trial_bound);
+// this function applies isPrimePL to num_trials many random mpz_t ints of given bit length
+bool prove_primePL_random(unsigned long num_trials, unsigned long bit_length);
