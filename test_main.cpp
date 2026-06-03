@@ -12,7 +12,7 @@ int main(){
 	// factor 100
 	vector<unsigned long> nprimes;
 	vector<unsigned long> nexps;
-	factor(nminus, nprimes, nexps);
+	trial_factor(nminus, nprimes, nexps);
 	print_factors(nprimes, nexps);
 	bool primeyes = isPrimePL(n, nprimes, nexps, false);
 	std::cout << "is prime returns " << primeyes << "\n";
@@ -21,7 +21,7 @@ int main(){
 	nprimes.clear();
 	nexps.clear();
 	mpz_set_ui(n, 561);
-	factor(n, nprimes, nexps);
+	trial_factor(n, nprimes, nexps);
 	print_factors(nprimes, nexps);
 
 	// prove 1009 is prime
@@ -29,7 +29,7 @@ int main(){
 	nexps.clear();
 	mpz_set_ui(n, 1009);
 	mpz_set_ui(nminus, 1008);
-	factor(nminus, nprimes, nexps);
+	trial_factor(nminus, nprimes, nexps);
 	print_factors(nprimes, nexps);
 	primeyes = isPrimePL(n, nprimes, nexps, true);
 	std::cout << "is prime returns " << primeyes << "\n";

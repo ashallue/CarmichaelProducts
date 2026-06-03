@@ -27,7 +27,7 @@ of the factorization are place in the input vectors.  If the input vectors
 are not empty they will be cleared.
 */
 void print_factors(vector<unsigned long>& primes, vector<unsigned long>& exponents);
-void factor(mpz_t n, vector<unsigned long>& primes, vector<unsigned long>& exponents);
+void trial_factor(mpz_t n, vector<unsigned long>& primes, vector<unsigned long>& exponents);
 
 /* Given an array which is assumed to store integer i at position i, and given a bound which is the size of the array,
   create a factor sieve, i.e. the array is transformed to store the largest prime factor of index i

@@ -130,7 +130,7 @@ bool isPrimePL(mpz_t n, const vector<unsigned long> primes, const vector<unsigne
    Notice that the input vectors are supposed to be empty so that they can 
    become the output.  If they are not empty they are made empty.
  */
-void factor(mpz_t n, vector<unsigned long>& primes, vector<unsigned long>& exponents){
+void trial_factor(mpz_t n, vector<unsigned long>& primes, vector<unsigned long>& exponents){
 	// vectors should be empty.  If not, clear them
 	if(primes.size() != 0) primes.clear();
 	if(exponents.size() !=0) exponents.clear();
@@ -182,7 +182,7 @@ void print_factors(vector<unsigned long>& primes, vector<unsigned long>& exponen
 	cout << "\n";
 } 
 
-// turns nums into a factor sieve.  Assumes allocated space for B longs.
+// turns nums into a factor sieve.  Assumes allocated space for B longs.  Written by Andrew in the 2021 maybe.
 void factor_sieve(unsigned long* nums, unsigned long B){
   // 0 and 1 store themselves
   nums[0] = 0;
@@ -192,7 +192,7 @@ void factor_sieve(unsigned long* nums, unsigned long B){
   long pivot = 2;
   long index = 2;
   // outer loop is over primes up to sqrt(B)
-  long prime_bound = std::ceil(std::sqrt(static_cast<double>(B)));
+  unsigned long prime_bound = std::ceil(std::sqrt(static_cast<double>(B)));
 
   // continue while the next prime is smaller than the bound
   while(pivot < prime_bound){
@@ -267,7 +267,7 @@ bool prove_primePL_all(unsigned long trial_bound) {
             std::vector<unsigned long> exponents;
             
             // factor may modify the mpz_t argument, so we pass a copy
-            factor(temp_n_minus_1, primes, exponents);
+            trial_factor(temp_n_minus_1, primes, exponents);
             
             bool result = isPrimePL(n, primes, exponents, false);
             if (!result) {
@@ -322,7 +322,7 @@ bool prove_primePL_random(unsigned long num_trials, unsigned long bit_length) {
             std::vector<unsigned long> primes;
             std::vector<unsigned long> exponents;
             
-            factor(temp_n_minus_1, primes, exponents);
+            trial_factor(temp_n_minus_1, primes, exponents);
             
             // Pocklington-Lehmer requires a known factorization of n-1
             if (is_factorization_complete(n_minus_1, primes, exponents)) {
