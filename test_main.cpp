@@ -6,8 +6,8 @@ int main(){
 
 	mpz_t n, nminus;
 	mpz_init(n);  mpz_init(nminus);
-	mpz_set_ui(n, 17);
-	mpz_set_ui(nminus, 16);
+	mpz_set_ui(n, 3);
+	mpz_set_ui(nminus, 2);
 
 	// factor 16
 	vector<unsigned long> nprimes;
@@ -47,4 +47,11 @@ int main(){
 	
 	mpz_clear(n); mpz_clear(nminus);
 	delete[] fs;
+
+	bool test1 = prove_primePL_all(1000);
+	if(test1){
+		std::cout << "test 1 passed\n";
+	}else{
+		std::cout << "test 1 failed\n";
+	}
 }

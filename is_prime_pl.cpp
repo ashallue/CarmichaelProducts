@@ -44,10 +44,10 @@ bool isPrimePL(mpz_t n, const vector<unsigned long> primes, const vector<unsigne
 	
 	// Search for b_i with b_i^{n-1} equiv 1 mod n
 	// and gcd(b_i^{(n-1)/p_i}-1,n) = 1 for all i = 0,..., r
-	mpz_t b, b_squared;
+	mpz_t b;
 	mpz_t nm1, exp, base_pow, base_pow_minus_1, gcd_val;
 	
-	mpz_init(b); mpz_init(b_squared);
+	mpz_init(b); 
 	mpz_init(nm1); mpz_init(exp); mpz_init(base_pow); mpz_init(base_pow_minus_1); mpz_init(gcd_val);
 
 	// set nm1 as n - 1, set isprime to true
@@ -58,9 +58,8 @@ bool isPrimePL(mpz_t n, const vector<unsigned long> primes, const vector<unsigne
 	for (int i = 0; i <= r; i++) {
 		bool found_b = false;
 		mpz_set_ui(b, 2);
-		mpz_mul(b_squared, b, b);
 	
-		while (mpz_cmp(b_squared, n) <= 0) {  // search for b_i from 2 up to sqrt{n} + 1
+		while (mpz_cmp(b, n) < 0) {  // search for b_i up to n, hope to find it faster
 			if (verbose) { 
 				char* b_str = mpz_get_str(NULL, 10, b);
 				cout << "trying b_" << i << " = " << b_str;
@@ -102,7 +101,6 @@ bool isPrimePL(mpz_t n, const vector<unsigned long> primes, const vector<unsigne
 
 			// check the next b
 			mpz_add_ui(b, b, 1);
-			mpz_mul(b_squared, b, b);
 		} // end while
 	
 		if (!is_prime) {
@@ -118,7 +116,7 @@ bool isPrimePL(mpz_t n, const vector<unsigned long> primes, const vector<unsigne
 	
 	// Free all locally allocated GMP memory before exit
 	mpz_clear(F); mpz_clear(F_squared); mpz_clear(temp);
-	mpz_clear(b); mpz_clear(b_squared);
+	mpz_clear(b); 
 	mpz_clear(nm1); mpz_clear(exp); mpz_clear(base_pow); mpz_clear(base_pow_minus_1); mpz_clear(gcd_val);
 	
 	return is_prime;	
@@ -197,23 +195,23 @@ void factor_sieve(unsigned long* nums, unsigned long B){
 	
 	// continue while the next prime is smaller than the bound
 	while(pivot < prime_bound){
-	std::cout << "pivot = " << pivot << "\n";
+		//std::cout << "pivot = " << pivot << "\n";
 	
-	// while smaller than the bound replace entry in index 
-	// with the pivot.
-	for(index = 2 * pivot; index < B; index = index + pivot){
-		if(nums[index] == index){
-			nums[index] = pivot;
+		// while smaller than the bound replace entry in index 
+		// with the pivot.
+		for(index = 2 * pivot; index < B; index = index + pivot){
+			if(nums[index] == index){
+				nums[index] = pivot;
+			}
 		}
-	}
-	
-	// find the next prime.  It will be the first entry where 
-	// the value equals the index
-	++pivot;
-	while(nums[pivot] != pivot){
+		
+		// find the next prime.  It will be the first entry where 
+		// the value equals the index
 		++pivot;
+		while(nums[pivot] != pivot){
+			++pivot;
 		}
-	}
+	} // end outer while
 }
 
 // Then sieve_factor fills out primes, exponents with the complete factorization of n using a factor sieve fs.
@@ -269,49 +267,43 @@ bool prove_primePL_all(unsigned long trial_bound) {
     if (trial_bound < 2) {
         return true; 
     }
-    
-    // Simple Sieve of Eratosthenes to find all primes up to trial_bound
-    std::vector<bool> is_prime(trial_bound + 1, true);
-    is_prime[0] = false;
-    is_prime[1] = false;
-    for (unsigned long p = 2; p * p <= trial_bound; p++) {
-        if (is_prime[p]) {
-            for (unsigned long i = p * p; i <= trial_bound; i += p) {
-                is_prime[i] = false;
-            }
-        }
-    }
+
+	// [Andrew] let's use a factor sieve for the factoring
+	unsigned long* fs = new unsigned long[trial_bound];
+	factor_sieve(fs, trial_bound);
     
     bool all_passed = true;
     for (unsigned long p = 2; p <= trial_bound; p++) {
-        if (is_prime[p]) {
+		// only apply the prime proving to prime numbers
+        if (fs[p] == p) {
             // Pocklington-Lehmer is typically defined for n >= 3
             if (p == 2) {
                 continue;
             }
             
-            mpz_t n, n_minus_1, temp_n_minus_1;
+            mpz_t n, n_minus_1;
             mpz_init_set_ui(n, p);
             mpz_init_set_ui(n_minus_1, p - 1);
-            mpz_init_set(temp_n_minus_1, n_minus_1);
             
             std::vector<unsigned long> primes;
             std::vector<unsigned long> exponents;
-            
-            // factor may modify the mpz_t argument, so we pass a copy
-            trial_factor(temp_n_minus_1, primes, exponents);
+
+			// factor with the factor sieve
+			sieve_factor(n_minus_1, primes, exponents, fs, trial_bound);
             
             bool result = isPrimePL(n, primes, exponents, false);
             if (!result) {
+				std::cout << "failed for p = " << p << "\n";
+				print_factors(primes, exponents);
                 all_passed = false;
             }
             
             mpz_clear(n);
             mpz_clear(n_minus_1);
-            mpz_clear(temp_n_minus_1);
         }
     }
-    
+	// clean up and return
+	delete[] fs;
     return all_passed;
 }
 
