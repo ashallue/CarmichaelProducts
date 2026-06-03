@@ -273,34 +273,35 @@ bool prove_primePL_all(unsigned long trial_bound) {
 	factor_sieve(fs, trial_bound);
     
     bool all_passed = true;
+	bool single_isprime;
     for (unsigned long p = 2; p <= trial_bound; p++) {
-		// only apply the prime proving to prime numbers
-        if (fs[p] == p) {
-            // Pocklington-Lehmer is typically defined for n >= 3
-            if (p == 2) {
-                continue;
-            }
-            
-            mpz_t n, n_minus_1;
-            mpz_init_set_ui(n, p);
-            mpz_init_set_ui(n_minus_1, p - 1);
-            
-            std::vector<unsigned long> primes;
-            std::vector<unsigned long> exponents;
+		// Note I'm applying this to both primes and composites
+		// Pocklington-Lehmer is typically defined for n >= 3
+		if (p == 2) {
+			continue;
+		}
+		// check factor sieve for true composite/prime answer
+		single_isprime = fs[p] == p;
+		
+		mpz_t n, n_minus_1;
+		mpz_init_set_ui(n, p);
+		mpz_init_set_ui(n_minus_1, p - 1);
+		
+		std::vector<unsigned long> primes;
+		std::vector<unsigned long> exponents;
 
-			// factor with the factor sieve
-			sieve_factor(n_minus_1, primes, exponents, fs, trial_bound);
-            
-            bool result = isPrimePL(n, primes, exponents, false);
-            if (!result) {
-				std::cout << "failed for p = " << p << "\n";
-				print_factors(primes, exponents);
-                all_passed = false;
-            }
-            
-            mpz_clear(n);
-            mpz_clear(n_minus_1);
-        }
+		// factor with the factor sieve
+		sieve_factor(n_minus_1, primes, exponents, fs, trial_bound);
+		
+		bool result = isPrimePL(n, primes, exponents, false);
+		if (result != single_isprime) {
+			std::cout << "failed for p = " << p << "\n";
+			print_factors(primes, exponents);
+			all_passed = false;
+		}
+		
+		mpz_clear(n);
+		mpz_clear(n_minus_1);
     }
 	// clean up and return
 	delete[] fs;
