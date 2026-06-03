@@ -184,32 +184,64 @@ void print_factors(vector<unsigned long>& primes, vector<unsigned long>& exponen
 
 // turns nums into a factor sieve.  Assumes allocated space for B longs.  Written by Andrew in the 2021 maybe.
 void factor_sieve(unsigned long* nums, unsigned long B){
-  // 0 and 1 store themselves
-  nums[0] = 0;
-  nums[1] = 1;
+	// set nums to contain i at position i for all i < B
+	for(unsigned long i = 0; i < B; ++i){
+		nums[i] = i;
+	}
+	
+	// pivot refers to the current prime being sieved
+	long pivot = 2;
+	long index = 2;
+	// outer loop is over primes up to sqrt(B)
+	unsigned long prime_bound = std::ceil(std::sqrt(static_cast<double>(B)));
+	
+	// continue while the next prime is smaller than the bound
+	while(pivot < prime_bound){
+	std::cout << "pivot = " << pivot << "\n";
+	
+	// while smaller than the bound replace entry in index 
+	// with the pivot.
+	for(index = 2 * pivot; index < B; index = index + pivot){
+		if(nums[index] == index){
+			nums[index] = pivot;
+		}
+	}
+	
+	// find the next prime.  It will be the first entry where 
+	// the value equals the index
+	++pivot;
+	while(nums[pivot] != pivot){
+		++pivot;
+		}
+	}
+}
 
-  // pivot refers to the current prime being sieved
-  long pivot = 2;
-  long index = 2;
-  // outer loop is over primes up to sqrt(B)
-  unsigned long prime_bound = std::ceil(std::sqrt(static_cast<double>(B)));
+// Then sieve_factor fills out primes, exponents with the complete factorization of n using a factor sieve fs.
+void sieve_factor(mpz_t n, vector<unsigned long>& primes, vector<unsigned long>& exponents, unsigned long* fs, unsigned long B){
+	// this only works if n < B.  Check bounds then convert n to unsigned long
+	if(mpz_cmp_ui(n, 0) < 0 || mpz_cmp_ui(n, B) > 0){
+		std::cout << "Error in sieve_factor, given n is out of bounds\n";
+		return;
+	}
+	unsigned long n_ui = mpz_get_ui(n);
+	unsigned long p; unsigned long e;
+	primes.clear(); exponents.clear();
 
-  // continue while the next prime is smaller than the bound
-  while(pivot < prime_bound){
-  
-    // while smaller than the bound replace entry in index 
-    // with the pivot.
-    for(index = 2 * pivot; index < B; index = index + pivot){
-      nums[index] = pivot;
-    }
+	// continue factoring until n is 1
+	while(n_ui > 1){
+		p = fs[n_ui];
+		e = 1;
+		n_ui = n_ui / p;
 
-    // find the next prime.  It will be the first entry where 
-    // the value equals the index
-    ++pivot;
-    while(nums[pivot] != pivot){
-      ++pivot;
-    }
-  }
+		// find all the factors of p
+		while(fs[n_ui] == p){
+			e++;
+			n_ui = n_ui / p;
+		}
+
+		// now add p^e to the ouput
+		primes.push_back(p);  exponents.push_back(e);
+	}
 }
 
 /* testing functions for primality proving algs.  Written by Andrew Shallue and Gemini 3.5 flash, June 2026
