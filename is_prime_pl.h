@@ -21,6 +21,12 @@ then the function constructs F as the smallest i such that prod_i p_1^e_1 > sqrt
 */
 bool isPrimePL(mpz_t n, const vector<unsigned long> primes, const vector<unsigned long> exponents, bool verbose);
 
+/* Brillhart, Lehmer, Selfridge test.  More complicated, but now can stop when F > n^{1/3}.
+Once again, note that I am assuming I have the complete factorization of n-1.
+Andrew and Gemini 3.5 Flash, summer 2026.  Really Gemini did all the work here.
+*/
+bool isPrimeBLS(mpz_t n, const vector<unsigned long> primes, const vector<unsigned long> exponents, bool verbose);
+
 /* written by Andrew Shallue, summer 2013
 This prints a factorization given in prime and exponent vectors of the same length
 

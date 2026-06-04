@@ -122,6 +122,193 @@ bool isPrimePL(mpz_t n, const vector<unsigned long> primes, const vector<unsigne
 	return is_prime;	
 }
 
+/* Brillhart, Lehmer, Selfridge test.  More complicated, but now can stop when F > n^{1/3}.
+Once again, note that I am assuming I have the complete factorization of n-1.
+Andrew and Gemini 3.5 Flash, summer 2026
+*/
+bool isPrimeBLS(mpz_t n, const vector<unsigned long> primes, const vector<unsigned long> exponents, bool verbose) {
+
+	// Handle small edge cases
+	if (mpz_cmp_ui(n, 1) <= 0) return false;
+	if (mpz_cmp_ui(n, 2) == 0) return true;
+	if (mpz_even_p(n)) return false;
+
+	int r = 0;
+	
+	// Initialize factorization and limit variables
+	mpz_t F, temp, nm1;
+	mpz_t R, s, r_val, limit, term1, term2, r_minus_1, F_sq, two_F_sq, two_F;
+	
+	mpz_init(F); mpz_init(temp); mpz_init(nm1);
+	mpz_init(R); mpz_init(s); mpz_init(r_val);
+	mpz_init(limit); mpz_init(term1); mpz_init(term2); 
+	mpz_init(r_minus_1); mpz_init(F_sq); mpz_init(two_F_sq); mpz_init(two_F);
+
+	mpz_sub_ui(nm1, n, 1);
+
+	// Multiply by prime powers until the BLS condition holds:
+	// n < (F + 1) * (2 * F^2 + (r_val - 1) * F + 1)
+	mpz_ui_pow_ui(F, primes[r], exponents[r]);
+
+	while (true) {
+		// Calculate R = (n-1)/F
+		mpz_tdiv_q(R, nm1, F);
+
+		// Calculate s and r_val from R = 2Fs + r_val
+		mpz_mul_2exp(two_F, F, 1);
+		mpz_tdiv_qr(s, r_val, R, two_F);
+
+		// Calculate limit = (F + 1) * (2 * F^2 + (r_val - 1) * F + 1)
+		mpz_add_ui(term1, F, 1);
+		mpz_sub_ui(r_minus_1, r_val, 1);
+		mpz_mul(term2, r_minus_1, F);
+		mpz_mul(F_sq, F, F);
+		mpz_mul_ui(two_F_sq, F_sq, 2);
+		mpz_add(term2, term2, two_F_sq);
+		mpz_add_ui(term2, term2, 1);
+		mpz_mul(limit, term1, term2);
+
+		// If n < limit, we have factored enough of n-1
+		if (mpz_cmp(n, limit) < 0) {
+			break;
+		}
+
+		// Otherwise, multiply by the next prime power
+		r++;
+		if (r >= primes.size()) {
+			std::cout << "Error in isPrimeBLS, factorization of n-1 not complete\n";
+			
+			break; // Factorization of n-1 is exhausted
+		}
+		mpz_ui_pow_ui(temp, primes[r], exponents[r]);
+		mpz_mul(F, F, temp);
+	}
+	
+	/* If verbose is on, print F */
+	if (verbose) { 
+		cout << "F = " << primes[0] << "^" << exponents[0]; 
+		for (int i = 1; i <= r; i++) {
+			cout << "*" << primes[i] << "^" << exponents[i];
+		}
+		cout << "\n";
+	}
+
+	// Now check the BLS condition: s == 0 or r_val^2 - 8s is not a perfect square
+	mpz_t r_sq, eight_s, diff;
+	mpz_init(r_sq); mpz_init(eight_s); mpz_init(diff);
+
+	mpz_mul(r_sq, r_val, r_val);
+	mpz_mul_ui(eight_s, s, 8);
+	mpz_sub(diff, r_sq, eight_s);
+
+	bool bls_condition_passed = false;
+	if (mpz_sgn(s) == 0) {
+		bls_condition_passed = true;
+	} else if (mpz_sgn(diff) < 0) {
+		// Negative values cannot be perfect squares of integers
+		bls_condition_passed = true;
+	} else {
+		// mpz_perfect_square_p returns non-zero if diff is a perfect square
+		if (mpz_perfect_square_p(diff) == 0) {
+			bls_condition_passed = true;
+		}
+	}
+
+	bool is_prime = true;
+
+	if (!bls_condition_passed) {
+		if (verbose) {
+			cout << "Failed BLS condition: s is non-zero and r^2 - 8s is a perfect square\n";
+		}
+		is_prime = false; // n is composite
+	}
+
+	// Search for b_i with b_i^{n-1} equiv 1 mod n
+	// and gcd(b_i^{(n-1)/p_i}-1,n) = 1 for all i = 0,..., r
+	mpz_t b;
+	mpz_t exp, base_pow, base_pow_minus_1, gcd_val;
+	
+	mpz_init(b); 
+	mpz_init(exp); mpz_init(base_pow); mpz_init(base_pow_minus_1); mpz_init(gcd_val);
+
+	if (is_prime) {
+		// i corresponds to a prime in the factorization of n-1
+		for (int i = 0; i <= r; i++) {
+			bool found_b = false;
+			mpz_set_ui(b, 2);
+		
+			while (mpz_cmp(b, n) < 0) {  // search for b_i up to n
+				if (verbose) { 
+					char* b_str = mpz_get_str(NULL, 10, b);
+					cout << "trying b_" << i << " = " << b_str;
+					
+					// Safely free the memory allocated by mpz_get_str
+					void (*freefunc)(void *, size_t);
+					mp_get_memory_functions(NULL, NULL, &freefunc);
+					freefunc(b_str, strlen(b_str) + 1);
+				} //endif
+
+				// calculate b^{n-1} mod n
+				mpz_powm(base_pow, b, nm1, n);
+				if (mpz_cmp_ui(base_pow, 1) == 0) {  // if equal to 1
+					
+					if (verbose) { cout << ", passed fermat's test"; }
+					mpz_tdiv_q_ui(exp, nm1, primes[i]);
+					mpz_powm(base_pow, b, exp, n);
+				
+					// Equivalent to SubMod(base_pow, 1, n)
+					if (mpz_cmp_ui(base_pow, 0) == 0) {
+						mpz_sub_ui(base_pow_minus_1, n, 1);
+					} else {
+						mpz_sub_ui(base_pow_minus_1, base_pow, 1);
+					}
+			
+					mpz_gcd(gcd_val, base_pow_minus_1, n);
+					if (mpz_cmp_ui(gcd_val, 1) == 0) {  // if gcd is 1
+						if (verbose) { cout << ", passed gcd test\n"; }
+						found_b = true;
+						break;
+					} else {
+						if (verbose) { cout << ", failed gcd test\n"; }
+					}
+				} else {
+					if (verbose) { cout << ", failed fermat's test\n"; }
+					is_prime = false; // n is composite by Fermat's little theorem
+					break; 
+				}
+
+				// check the next b
+				mpz_add_ui(b, b, 1);
+			} // end while
+		
+			if (!is_prime) {
+				break;
+			}
+		
+			if (!found_b) {
+				if (verbose) { cout << "no b_i found\n"; }
+				is_prime = false; // no b_i found
+				break;
+			}
+		} // end for
+	}
+	
+	// Free all locally allocated GMP memory before exit
+	mpz_clear(F); mpz_clear(temp); mpz_clear(nm1);
+	mpz_clear(R); mpz_clear(s); mpz_clear(r_val);
+	mpz_clear(limit); mpz_clear(term1); mpz_clear(term2);
+	mpz_clear(r_minus_1); mpz_clear(F_sq); mpz_clear(two_F_sq); mpz_clear(two_F);
+	mpz_clear(r_sq); mpz_clear(eight_s); mpz_clear(diff);
+	mpz_clear(b); 
+	mpz_clear(exp); mpz_clear(base_pow); mpz_clear(base_pow_minus_1); mpz_clear(gcd_val);
+	
+	return is_prime;	
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//////// Code for Testing
+//////////////////////////////////////////////////////////////////////////////
+
 
 /* Here's a trial division algorithm written by Andrew
    May 2013
@@ -276,7 +463,7 @@ bool prove_primePL_all(unsigned long trial_bound) {
 		// factor with the factor sieve
 		sieve_factor(n_minus_1, primes, exponents, fs, trial_bound);
 		
-		bool result = isPrimePL(n, primes, exponents, false);
+		bool result = isPrimeBLS(n, primes, exponents, false);
 		if (result != single_isprime) {
 			std::cout << "failed for p = " << p << "\n";
 			print_factors(primes, exponents);
@@ -317,10 +504,16 @@ bool prove_primePL_random(unsigned long num_trials, unsigned long bit_length) {
         attempts++;
         
         mpz_urandomb(n, state, bit_length);
+
+		// testing
+		//std::cout << "n before mod: " << mpz_get_ui(n);
         
         // Ensure the candidate has the specified bit length and is odd
         mpz_setbit(n, bit_length - 1);
         mpz_setbit(n, 0);
+
+		//testing
+		//std::cout << ", n after: " << mpz_get_ui(n) << "\n";
         
         // Check if the candidate is probably prime
         if (mpz_probab_prime_p(n, 25) > 0) {
@@ -331,7 +524,7 @@ bool prove_primePL_random(unsigned long num_trials, unsigned long bit_length) {
 
 			// factor n-1 and apply primality test
             trial_factor(n_minus_1, primes, exponents);
-			bool result = isPrimePL(n, primes, exponents, false);
+			bool result = isPrimeBLS(n, primes, exponents, false);
 			if (!result) {
 				all_passed = false;
 			}
