@@ -125,6 +125,13 @@ bool isPrimePL(mpz_t n, const vector<unsigned long> primes, const vector<unsigne
 /* Brillhart, Lehmer, Selfridge test.  More complicated, but now can stop when F > n^{1/3}.
 Once again, note that I am assuming I have the complete factorization of n-1.
 Andrew and Gemini 3.5 Flash, summer 2026
+
+Here's how the notation matches between Gemini (G) and Crandall-Pomerance (CP)
+CP says we write n = c2 F^2 + c1 F + 1, check that c1^2 - 4c2 not a square.
+G says we write n-1 = RF with R = 2Fs + r_val, check that r_val^2 - 8s is not a square.
+Note that n = c2 F^2 + c1 F + 1 iff n-1 = F(c2 F + c1), iff R = c2 F + c1 and so c2 = 2s, c1 = r_val
+and then r_val^2 - 8s is equiv to c^2 - 4c2.
+We are assuming n is odd so n-1 is even, so the 2 is okay.  But personally I don't think it helps any.
 */
 bool isPrimeBLS(mpz_t n, const vector<unsigned long> primes, const vector<unsigned long> exponents, bool verbose) {
 
@@ -194,6 +201,7 @@ bool isPrimeBLS(mpz_t n, const vector<unsigned long> primes, const vector<unsign
 	}
 
 	// Now check the BLS condition: s == 0 or r_val^2 - 8s is not a perfect square
+	// condition being true is a necessary condition for n to be prime
 	mpz_t r_sq, eight_s, diff;
 	mpz_init(r_sq); mpz_init(eight_s); mpz_init(diff);
 
