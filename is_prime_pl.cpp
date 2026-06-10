@@ -441,7 +441,8 @@ void sieve_factor(mpz_t n, vector<unsigned long>& primes, vector<unsigned long>&
 */
 
 // this function applies isPrimePL to every prime number up to a trial division bound
-bool prove_primePL_all(unsigned long trial_bound) {
+// if the PL_method flag is false, apply isPrimeBLS instead.
+bool prove_primePL_all(unsigned long trial_bound, bool PL_method) {
     if (trial_bound < 2) {
         return true; 
     }
@@ -470,8 +471,15 @@ bool prove_primePL_all(unsigned long trial_bound) {
 
 		// factor with the factor sieve
 		sieve_factor(n_minus_1, primes, exponents, fs, trial_bound);
-		
-		bool result = isPrimeBLS(n, primes, exponents, false);
+
+		// apply one of two primality proving methods
+		bool result;
+		if(PL_method){
+			result = isPrimePL(n, primes, exponents, false);
+		else{
+			result = isPrimeBLS(n, primes, exponents, false);
+		}
+		// check against true answer for primality
 		if (result != single_isprime) {
 			std::cout << "failed for p = " << p << "\n";
 			print_factors(primes, exponents);
@@ -487,7 +495,7 @@ bool prove_primePL_all(unsigned long trial_bound) {
 }
 
 // this function applies isPrimePL to num_trials many random mpz_t ints of given bit length
-bool prove_primePL_random(unsigned long num_trials, unsigned long bit_length) {
+bool prove_primePL_random(unsigned long num_trials, unsigned long bit_length, bool PL_method) {
     if (bit_length < 2) {
 		std::cout << "Error in prove_primePL_random, bit_length too small\n";
         return false;
@@ -532,7 +540,14 @@ bool prove_primePL_random(unsigned long num_trials, unsigned long bit_length) {
 
 			// factor n-1 and apply primality test
             trial_factor(n_minus_1, primes, exponents);
-			bool result = isPrimeBLS(n, primes, exponents, false);
+			bool result;
+			if(PL_method){
+				result = isPrimePL(n, primes, exponents, false);
+			}else{
+				result = isPrimeBLS(n, primes, exponents, false);
+			}
+			
+			// make sure result returns prime
 			if (!result) {
 				all_passed = false;
 			}

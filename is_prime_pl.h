@@ -47,6 +47,7 @@ void sieve_factor(mpz_t n, vector<unsigned long>& primes, vector<unsigned long>&
 /* testing functions for primality proving algs.  Written by Andrew Shallue and Gemini 3.5 flash, June 2026
 */
 // this function applies isPrimePL to every prime number up to a trial division bound
-bool prove_primePL_all(unsigned long trial_bound);
-// this function applies isPrimePL to num_trials many random mpz_t ints of given bit length
-bool prove_primePL_random(unsigned long num_trials, unsigned long bit_length);
+// if the PL_method flag is false, apply isPrimeBLS instead.
+bool prove_primePL_all(unsigned long trial_bound, bool PL_method);
+// this function applies isPrimePL to num_trials many random mpz_t ints of given bit length (or isPrimeBLS)
+bool prove_primePL_random(unsigned long num_trials, unsigned long bit_length, bool PL_method);
