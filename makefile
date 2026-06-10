@@ -10,7 +10,7 @@ PATHS = -I/usr/local/include -L/usr/local/lib
 TARGETS = test
 
 # Source files
-SRCS = is_prime_pl.cpp
+SRCS = is_prime_pl.cpp CondensedInteger.cpp
 
 # Source files compiled with mpic++
 
@@ -25,7 +25,7 @@ all: $(TARGETS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Rule for compiling test
-test:  test_main.cpp is_prime_pl.o
+test:  test_main.cpp is_prime_pl.o CondensedInteger.o
 	$(CXX) $^ -o $@ $(CXXFLAGS)
 
 # Clean up object files and executables

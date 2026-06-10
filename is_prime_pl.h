@@ -3,6 +3,7 @@
 #include <gmp.h>
 #include <cstring>
 #include "math.h"
+#include <chrono>
 
 using namespace std;
 
@@ -51,3 +52,8 @@ void sieve_factor(mpz_t n, vector<unsigned long>& primes, vector<unsigned long>&
 bool prove_primePL_all(unsigned long trial_bound, bool PL_method);
 // this function applies isPrimePL to num_trials many random mpz_t ints of given bit length (or isPrimeBLS)
 bool prove_primePL_random(unsigned long num_trials, unsigned long bit_length, bool PL_method);
+
+/* function that tests two primality proving algorithms.
+returns true if all tests passed.  Also has printed output
+*/
+bool test_primality_proving();

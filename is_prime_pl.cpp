@@ -476,7 +476,7 @@ bool prove_primePL_all(unsigned long trial_bound, bool PL_method) {
 		bool result;
 		if(PL_method){
 			result = isPrimePL(n, primes, exponents, false);
-		else{
+		}else{
 			result = isPrimeBLS(n, primes, exponents, false);
 		}
 		// check against true answer for primality
@@ -561,4 +561,68 @@ bool prove_primePL_random(unsigned long num_trials, unsigned long bit_length, bo
     
     // Returns true only if we successfully performed the requested number of trials and all passed
     return (successful_trials == num_trials) && all_passed;
+}
+
+/* function that tests two primality proving algorithms.
+returns true if all tests passed.  Also has printed output
+*/
+bool test_primality_proving(){
+	unsigned long bound1 = 1000;
+	unsigned long bound2 = 100000;
+	unsigned long bitlength1 = 10;
+	unsigned long bitlength2 = 20;
+
+	////////// testing via ranges
+	
+	bool test1 = prove_primePL_all(bound1, true);
+	bool test2 = prove_primePL_all(bound2, true);
+	if(test1 && test2){
+		std::cout << "PL working for all integers in a range\n";
+	}else{
+		std::cout << "PL failed for one of the ranges\n";
+	}
+
+	bool test3 = prove_primePL_all(bound1, false);
+	bool test4 = prove_primePL_all(bound2, false);
+	if(test3 && test4){
+		std::cout << "BLS working for all integers in a range\n";
+	}else{
+		std::cout << "BLS failed for at least one of the ranges\n";
+	}
+
+	////////// testing via random primes
+	
+	bool test5 = prove_primePL_random(1000, bitlength1, true);
+
+	// Start the timer
+    auto start = std::chrono::steady_clock::now();
+	bool test6 = prove_primePL_random(1000, bitlength2, true);
+    auto end = std::chrono::steady_clock::now();
+	
+	// Calculate the duration (e.g., in milliseconds)
+    std::chrono::duration<double, std::milli> elapsed = end - start;
+    std::cout << "Elapsed time for PL proving via random primes: " << elapsed.count() << " ms\n";
+
+	bool test7 = prove_primePL_random(1000, bitlength1, false);
+
+	start = std::chrono::steady_clock::now();
+	bool test8 = prove_primePL_random(1000, bitlength2, false);
+	end = std::chrono::steady_clock::now();
+
+	// calculate duration and print
+	elapsed = end - start;
+	std::cout << "Elapsed time for BLS proving via random primes: " << elapsed.count() << " ms\n";
+
+	if(test5 && test6){
+		std::cout << "PL working for random primes\n";
+	}else{
+		std::cout << "PL failed for at least one of the bitlengths\n";
+	}
+	if(test7 && test8){
+		std::cout << "BLS working for random primes\n";
+	}else{
+		std::cout << "BLS failed for at least one of the bitlengths\n";
+	}
+
+	return test1 && test2 && test3 && test4 && test5 && test6 && test7 && test8;
 }
