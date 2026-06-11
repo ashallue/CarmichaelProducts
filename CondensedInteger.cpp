@@ -53,12 +53,26 @@ CondensedInteger::CondensedInteger(const mpz_t p) {
 			exponent /= 2;
 			position--;
 		}
+		std::cout << "position " << position << " resulting exponent is " << rep[position] << "\n";
 	}
+	// testing
+	std::cout << "printing rep: ";
+	for(unsigned long i = 0; i < rep.size(); ++i){
+		std::cout << rep[i] << " ";
+	}
+	std::cout << "\n";
+		
 	mpz_clear(pminus);
 }
 
 // convert rep back to mpz_t, set rop to that value
 void CondensedInteger::to_mpz(mpz_t rop){
+	//testing
+	std::cout << "printing rep: ";
+	for(unsigned long i = 0; i < rep.size(); ++i){
+		std::cout << rep[i] << " ";
+	}
+	std::cout << "\n";
 
 	// reset rop to have value 1
 	mpz_set_ui(rop, 1);
@@ -92,7 +106,7 @@ void CondensedInteger::to_mpz(mpz_t rop){
 		int k = 0;
 		for (int j = positions[i + 1]; j > positions[i]; j--) {
 			if (rep[j]) { 
-				exponent += (2 << k);  // add 2^k to the running total
+				exponent += (1 << k);  // add 2^k to the running total
 			}
 			k++;
 		}

@@ -14,6 +14,7 @@ from ZZ to mpz_t by Andrew Shallue with the help of Gemini Flash-3.5
 #include <vector>
 #include <gmp.h>
 #include <math.h>
+#include <iostream>
 
 #ifndef CONDENSEDINTEGER_H
 #define CONDENSEDINTEGER_H
