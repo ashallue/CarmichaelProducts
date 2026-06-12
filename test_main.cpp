@@ -2,7 +2,7 @@
 #include <iostream>
 #include <chrono>
 #include "CondensedInteger.h"
-
+#include "unit_tests.h"
 
 
 
@@ -29,6 +29,30 @@ int main(){
 	mpz_t test_p;  mpz_init(test_p);  mpz_set_ui(test_p, 101);
 	CondensedInteger p = CondensedInteger(test_p);
 	mpz_t capture_p; mpz_init(capture_p);
+	p.to_mpz(capture_p);
+	gmp_printf("started with %Zd, ended with %Zd\n", test_p, capture_p);
+
+	// random seed
+	std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
+	// build a random divisor as a vector of exponents
+	unsigned long length = primes.size();
+	std::vector<unsigned long> div_exps;
+	for(unsigned long i = 0; i < length; ++i){
+		unsigned long e = std::rand() % (exponents.at(i) + 1);
+		div_exps.push_back(e);
+		std::cout << e << " ";
+	}
+	std::cout << "\n";
+
+	bool test = CI_convert_random(100);
+	std::cout << "CI test: " << test << "\n";
+
+	test = CI_convert_extremes();
+	std::cout << "CI test2: " << test << "\n";
+
+	mpz_set_ui(test_p, 102);
+	p = CondensedInteger(test_p);
 	p.to_mpz(capture_p);
 	gmp_printf("started with %Zd, ended with %Zd\n", test_p, capture_p);
 

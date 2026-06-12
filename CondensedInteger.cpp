@@ -53,26 +53,16 @@ CondensedInteger::CondensedInteger(const mpz_t p) {
 			exponent /= 2;
 			position--;
 		}
-		std::cout << "position " << position << " resulting exponent is " << rep[position] << "\n";
 	}
-	// testing
-	std::cout << "printing rep: ";
-	for(unsigned long i = 0; i < rep.size(); ++i){
-		std::cout << rep[i] << " ";
+	// check to make sure that pminus is 1 at the end of the compression process
+	if(mpz_cmp_ui(pminus, 1) != 0){
+		gmp_printf ("Error in creating CondensedInteger, %Zd has not been fully factored\n", pminus);
 	}
-	std::cout << "\n";
-		
 	mpz_clear(pminus);
 }
 
 // convert rep back to mpz_t, set rop to that value
 void CondensedInteger::to_mpz(mpz_t rop){
-	//testing
-	std::cout << "printing rep: ";
-	for(unsigned long i = 0; i < rep.size(); ++i){
-		std::cout << rep[i] << " ";
-	}
-	std::cout << "\n";
 
 	// reset rop to have value 1
 	mpz_set_ui(rop, 1);
