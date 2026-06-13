@@ -16,6 +16,7 @@ and turn it on if there are few ModElement objects with long histories.
 #include <gmp.h>
 #include <gmpxx.h>
 #include <math.h>
+#include "CondensedInteger.h"
 
 #ifndef MODELEMENT_H
 #define MODELEMENT_H
@@ -24,8 +25,10 @@ class ModElement{
 	public:
 	    // this static information needs to be initialized before any members of the class are created
 		// static means only one instance of these variables is stored for all objects in the class
-	    static vector<long> primes; // primes in prime factorization of L
-	    static vector<long> exps;  // exponents in the prime factorization of L
+	    static std::vector<long> primes; // primes in prime factorization of L
+	    static std::vector<long> exponents;  // exponents in the prime factorization of L
+
+		std::vector<CondensedInteger> history;  // records which elements this one is a product of
 
 		// flag designating whether n is stored explicitly or implicitly (via the history only)
 		bool history_only;
@@ -35,8 +38,9 @@ class ModElement{
 		// decided against pass-by-ref here. These are comparatively small, and copies are safer
 		static void set(std::vector<long> primes_, std::vector<long> exponents_);
 
-		ModElSpace(); // default constructor
-		ModElSpace(ZZ p); // constructs a ModElement from a given integer
+		ModElement(); // default constructor
+		// non-default constructor assumes we already know that p-1 | Lambda
+		ModElement(mpz_t p); 
 
 		// return residue of n modulo q.  Generally q is a prime-power divisor of L
 		unsigned long residue(unsigned long q);
