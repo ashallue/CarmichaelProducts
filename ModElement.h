@@ -11,6 +11,12 @@ One should turn the flag off if there are many ModElement objects with short his
 and turn it on if there are few ModElement objects with long histories.
 */
 
+#include <vector>
+#include <iostream>
+#include <gmp.h>
+#include <gmpxx.h>
+#include <math.h>
+
 #ifndef MODELEMENT_H
 #define MODELEMENT_H
 
@@ -21,11 +27,27 @@ class ModElement{
 	    static vector<long> primes; // primes in prime factorization of L
 	    static vector<long> exps;  // exponents in the prime factorization of L
 
+		// flag designating whether n is stored explicitly or implicitly (via the history only)
+		bool history_only;
+		mpz_class n_mod_L;
+
 	public:
 		// decided against pass-by-ref here. These are comparatively small, and copies are safer
 		static void set(std::vector<long> primes_, std::vector<long> exponents_);
 
-		
+		ModElSpace(); // default constructor
+		ModElSpace(ZZ p); // constructs a ModElement from a given integer
+
+		// return residue of n modulo q.  Generally q is a prime-power divisor of L
+		unsigned long residue(unsigned long q);
+		// return the max index such that the residue modulo p_i^e_i is not 1
+		unsigned long get_omega();
+		// return true if n is 1 modulo L
+		bool is_one();
+		// flip the history_only flag to true, calculate n_mod_L and store it in the attribute
+		void start_storing_n();
+		// return the product of the current ModElement with another, modulo L
+		ModElement product(ModElement& other, mpz_t L);
 };
 
 #endif

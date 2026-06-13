@@ -3,8 +3,9 @@
 #include <chrono>
 #include "CondensedInteger.h"
 #include "unit_tests.h"
-
-
+#include <memory>
+#include <gmp.h>
+#include <gmpxx.h>
 
 
 int main(){
@@ -55,5 +56,10 @@ int main(){
 	p = CondensedInteger(test_p);
 	p.to_mpz(capture_p);
 	gmp_printf("started with %Zd, ended with %Zd\n", test_p, capture_p);
+	std::cout << "\n";
 
+	mpz_class n = 5;
+	n = n * n;
+	std::cout << n << "\n";
+	
 }
