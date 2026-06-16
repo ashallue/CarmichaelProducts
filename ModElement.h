@@ -41,9 +41,12 @@ class ModElement{
 		ModElement(); // default constructor
 		// non-default constructor assumes we already know that p-1 | Lambda
 		ModElement(mpz_t p); 
+		// multiply history to create n.  For times when you need n, but don't want to store it
+		void to_mpz(mpz_t rop);
 
-		// return residue of n modulo q.  Generally q is a prime-power divisor of L
-		unsigned long residue(unsigned long q);
+
+		// return residue of n modulo q, the prime power at index i of primes, exponents
+		unsigned long residue(unsigned long index);
 		// return the max index such that the residue modulo p_i^e_i is not 1
 		unsigned long get_omega();
 		// return true if n is 1 modulo L
