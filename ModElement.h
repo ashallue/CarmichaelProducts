@@ -34,6 +34,8 @@ class ModElement{
 		bool history_only;
 		mpz_class n_mod_L;
 
+		// in case you want to convert from mpz_class to mpz_t, do this:  rop = n_mod_L.get_mpz_t();
+
 	public:
 		// decided against pass-by-ref here. These are comparatively small, and copies are safer
 		static void set(std::vector<long> primes_, std::vector<long> exponents_);
@@ -47,11 +49,11 @@ class ModElement{
 
 		// return residue of n modulo q, the prime power at index i of primes, exponents
 		unsigned long residue(unsigned long index);
-		// return the max index such that the residue modulo p_i^e_i is not 1
-		unsigned long get_omega();
+		// return the max index such that the residue modulo p_i^e_i is not 1.  Returns -1 if error or if n is identically 1
+		long get_omega();
 		// return true if n is 1 modulo L
 		bool is_one();
-		// flip the history_only flag to true, calculate n_mod_L and store it in the attribute
+		// flip the history_only flag to false, calculate n_mod_L and store it in the attribute
 		void start_storing_n();
 		// return the product of the current ModElement with another, modulo L
 		ModElement product(ModElement& other, mpz_t L);

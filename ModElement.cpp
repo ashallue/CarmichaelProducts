@@ -29,25 +29,27 @@ ModElement::ModElement() {
 // non-default constructor assumes we already know that p-1 | Lambda
 ModElement::ModElement(mpz_t p) {
 	history = std::vector<CondensedInteger>(1);
-	history.at(0) = CondensedInteger(p-1); 
+
+	mpz_t p_minus_1;
+	mpz_init(p_minus_1);
+	mpz_sub_ui(p_minus_1, p, 1);
+	history.at(0) = CondensedInteger(p_minus_1);
+	mpz_clear(p_minus_1);
 }
 
 // multiply history to create n.  For times when you need n, but don't want to store it
 void ModElement::to_mpz(mpz_t rop){
-	// if n_mod_L holds n, simply convert from mpz_class to mpz_t
-	if(!history_only){
-		rop = n_mod_L.get_mpz_t();
-	}else{
-		mpz_set_ui(rop, 1);
-		mpz_t prod; mpz_init(prod);
+	
+	mpz_set_ui(rop, 1);
+	mpz_t prod; mpz_init(prod);
 
-		// loop over history and multiply mod n
-		for(unsigned long i = 0; i < history.size(); ++i){
-			history.at(i).to_mpz(prod);
-			mpz_mul(rop, rop, prod);
-		}
-		mpz_clear(prod);
+	// loop over history and multiply mod n
+	for(unsigned long i = 0; i < history.size(); ++i){
+		history.at(i).to_mpz(prod);
+		mpz_mul(rop, rop, prod);
 	}
+	mpz_clear(prod);
+	
 }
 
 
@@ -60,14 +62,14 @@ unsigned long ModElement::residue(unsigned long index){
 	
 	// build q = p^e
 	mpz_t q;  mpz_init(q);
-	mpz_set(q, 1);
+	mpz_set_ui(q, 1);
 	mpz_ui_pow_ui(q, ModElement::primes[index], ModElement::exponents[index]);
 
 	mpz_t residue; mpz_init(residue);
 	mpz_t prod; mpz_init(prod);
 	// if n exists, simply perform modular division
 	if(!history_only){
-		mpz_mod(residue, n_mod_L, q);
+		mpz_mod(residue, n_mod_L.get_mpz_t(), q);
 
 	// otherwise, multiply the history together modulo q
 	}else{
@@ -81,18 +83,84 @@ unsigned long ModElement::residue(unsigned long index){
 
 	// either way, convert residue to unsigned long
 	unsigned long output = mpz_get_ui(residue);
-	mpz_clears(q, residue, prod);
+	mpz_clears(q, residue, prod, nullptr);
 	return output;
 }
 
 // return the max index such that the residue modulo p_i^e_i is not 1
-unsigned long ModElement::get_omega();
+long ModElement::get_omega(){
+	long index = ModElement::primes.size() - 1;
+	unsigned long res = residue(index);
+	while(index > -1 && res == 1){
+		index--;
+		res = residue(index);
+	}
+	return index;
+	
+}
 
 // return true if n is 1 modulo L
-bool ModElement::is_one();
+bool ModElement::is_one(){
+	// if we have n_mod_L, check if it is one
+	if(!history_only){
+		return n_mod_L == 1;
 
-// flip the history_only flag to true, calculate n_mod_L and store it in the attribute
-void ModElement::start_storing_n();
+	// otherwise get n, reduce modulo L
+	}else{
+		mpz_t n;  mpz_init(n);
+		this->to_mpz(n);
+
+		// calculate L
+		mpz_t Lambda; mpz_init(Lambda);
+		mpz_set_ui(Lambda, 1);
+		mpz_t pow; mpz_init(pow);
+		for(unsigned long i = 0; i < ModElement::primes.size(); ++i){
+			mpz_ui_pow_ui(pow, ModElement::primes.at(i), ModElement::exponents.at(i));
+			mpz_mul(Lambda, Lambda, pow);
+		}
+
+		// reduce n mod L
+		mpz_mod(n, n, Lambda);
+		bool output = mpz_cmp_ui(n, 1) == 0;
+
+		// clean up and return
+		mpz_clears(n, Lambda, pow, nullptr);
+		return output;
+	}
+}
+
+// flip the history_only flag to false, calculate n_mod_L and store it in the attribute
+void ModElement::start_storing_n(){
+	// if we are already storing n_mod_L, do nothing
+	if(!history_only){
+		return;
+	}else{
+		history_only = false;
+
+		// calculate Lambda
+		mpz_t Lambda; mpz_init(Lambda);
+		mpz_set_ui(Lambda, 1);
+		mpz_t power; mpz_init(power);
+		for(unsigned long i = 0; i < ModElement::primes.size(); ++i){
+			mpz_ui_pow_ui(power, ModElement::primes.at(i), ModElement::exponents.at(i));
+			mpz_mul(Lambda, Lambda, power);
+		}
+
+		// now multiply history together modulo Lambda
+		n_mod_L = 1;
+		mpz_t prod; mpz_init(prod);
+		for(unsigned long i = 0; i < history.size(); ++i){
+			history.at(i).to_mpz(prod);
+			n_mod_L = n_mod_L * mpz_class(prod);
+			n_mod_L = n_mod_L % mpz_class(Lambda);
+		}
+		
+		mpz_clears(Lambda, power, prod, nullptr);
+	}
+}
 
 // return the product of the current ModElement with another, modulo L
-ModElement ModElement::product(ModElement& other, mpz_t L);
+ModElement ModElement::product(ModElement& other, mpz_t L){
+	ModElement result;
+	return result;
+}
