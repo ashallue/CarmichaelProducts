@@ -90,3 +90,204 @@ bool CI_convert_extremes(){
 
 	return compare1 && compare2;
 }
+
+// apply the above two tests in one function.  Returns true if both passed.
+bool CI_testing(){
+	bool test1 = CI_convert_random(100);
+	std::cout << "Test Condensed Integer conversion with random divisors: " << test1 << "\n";
+
+	bool test2 = CI_convert_extremes();
+	std::cout << "Test Condensed Integer conversion with biggest, smallest divisors: " << test2 << "\n";
+
+	return test1 && test2;
+}
+
+//////////////////// Unit tests for ModElement class
+/* When I asked gemini to write me tests, it defaulted to using the Google test suite, 
+which one accesses with #include <gtest/gtest.h> and has commands like TEST_F and EXPECT_EQ
+I don't want to rely on that, so I'm rewriting.  So test ideas from gemini, code by Andrew
+*/
+
+// test set method for ModElement
+bool ME_test_set(){
+	std::vector<long> test_primes = {2, 3, 5};
+    std::vector<long> test_exponents = {3, 2, 1}; // L = 2^3 * 3^2 * 5^1
+    ModElement::set(test_primes, test_exponents);
+
+	bool correct = true;
+	// check that the sizes of the static vectors are correct
+	if(ModElement::primes.size() != 3 || ModElement::exponents.size() != 3){
+		correct = false;
+	}
+	// check that the values of the static vectors match what was set
+	if(ModElement::primes.at(0) != 2 || ModElement::primes.at(1) != 3 || ModElement::primes.at(2) != 5){
+		correct = false;
+	}
+	if(ModElement::exponents.at(0) != 3 || ModElement::exponents.at(1) != 2 || ModElement::exponents.at(2) != 1){
+		correct = false;
+	}
+	return correct;
+}
+
+/*
+// Test Fixture for ModElement to manage setup and teardown
+class ModElementTest : public ::testing::Test {
+protected:
+    void SetUp() override {
+        // Reset static vectors before each test
+        ModElement::primes.clear();
+        ModElement::exponents.clear();
+    }
+
+    void TearDown() override {
+        ModElement::primes.clear();
+        ModElement::exponents.clear();
+    }
+};
+
+// 1. Test Static Set Method
+TEST_F(ModElementTest, StaticSetInitializesCorrectly) {
+    std::vector<long> test_primes = {2, 3};
+    std::vector<long> test_exponents = {3, 2}; // L = 2^3 * 3^2 = 72
+
+    ModElement::set(test_primes, test_exponents);
+
+    EXPECT_EQ(ModElement::primes, test_primes);
+    EXPECT_EQ(ModElement::exponents, test_exponents);
+}
+
+// 2. Test Default Constructor
+TEST_F(ModElementTest, DefaultConstructorState) {
+    ModElement me;
+    EXPECT_TRUE(me.history.empty());
+    // Implicitly history_only is usually expected to be true initially
+}
+
+// 3. Test Non-Default Constructor (ModElement(mpz_t p))
+TEST_F(ModElementTest, NonDefaultConstructorWithPrime) {
+    mpz_t p;
+    mpz_init_set_ui(p, 7); // p = 7, so history should contain p-1 = 6
+
+    ModElement me(p);
+
+    ASSERT_EQ(me.history.size(), 1);
+
+    mpz_t history_val;
+    mpz_init(history_val);
+    me.history.at(0).to_mpz(history_val);
+
+    EXPECT_EQ(mpz_cmp_ui(history_val, 6), 0); // Should store p-1 (6)
+
+    mpz_clears(p, history_val, NULL);
+}
+
+// 4. Test conversion of history to mpz_t via to_mpz()
+TEST_F(ModElementTest, ToMpzMultipliesHistory) {
+    ModElement me;
+    me.history.push_back(CondensedInteger(5));
+    me.history.push_back(CondensedInteger(3));
+    me.history.push_back(CondensedInteger(2)); // Product should be 5 * 3 * 2 = 30
+
+    mpz_t result;
+    mpz_init(result);
+    me.to_mpz(result);
+
+    EXPECT_EQ(mpz_cmp_ui(result, 30), 0);
+    mpz_clear(result);
+}
+
+// 5. Test Residue Calculation modulo prime powers
+TEST_F(ModElementTest, ResidueCalculatesCorrectModulo) {
+    // Set up Lambda = 2^3 * 3^2 = 72
+    ModElement::set({2, 3}, {3, 2});
+
+    ModElement me;
+    me.history_only = true;
+    me.history.push_back(CondensedInteger(35)); // n = 35
+
+    // Residue modulo index 0 (2^3 = 8): 35 % 8 = 3
+    EXPECT_EQ(me.residue(0), 3);
+
+    // Residue modulo index 1 (3^2 = 9): 35 % 9 = 8
+    EXPECT_EQ(me.residue(1), 8);
+
+    // Test index out of bounds
+    // (Cast to unsigned long to match the return value on error, which is -1 or ULONG_MAX)
+    EXPECT_EQ(me.residue(2), static_cast<unsigned long>(-1));
+}
+
+// 6. Test get_omega() method
+TEST_F(ModElementTest, GetOmegaReturnsMaxNonOneIndex) {
+    // Set up Lambda = 2^3 * 3^2 = 72
+    ModElement::set({2, 3}, {3, 2});
+
+    // Case A: Residue is 1 modulo all prime powers (n = 1)
+    ModElement me_one;
+    me_one.history_only = true;
+    me_one.history.push_back(CondensedInteger(1));
+    EXPECT_EQ(me_one.get_omega(), -1);
+
+    // Case B: Residue is not 1 mod 2^3, but is 1 mod 3^2 (n = 10)
+    // 10 % 8 = 2 (not 1) -> Index 0 is not 1
+    // 10 % 9 = 1         -> Index 1 is 1
+    // Max index with residue != 1 is 0
+    ModElement me_ten;
+    me_ten.history_only = true;
+    me_ten.history.push_back(CondensedInteger(10));
+    EXPECT_EQ(me_ten.get_omega(), 0);
+
+    // Case C: Residue is 1 mod 2^3, but is not 1 mod 3^2 (n = 17)
+    // 17 % 8 = 1         -> Index 0 is 1
+    // 17 % 9 = 8 (not 1) -> Index 1 is not 1
+    // Max index with residue != 1 is 1
+    ModElement me_seventeen;
+    me_seventeen.history_only = true;
+    me_seventeen.history.push_back(CondensedInteger(17));
+    EXPECT_EQ(me_seventeen.get_omega(), 1);
+}
+
+// 7. Test is_one() method (both history_only and stored modes)
+TEST_F(ModElementTest, IsOneDetectsIdentity) {
+    // Set up Lambda = 2^3 * 3^2 = 72
+    ModElement::set({2, 3}, {3, 2});
+
+    // Case A: n = 73 (73 % 72 = 1) -> Should return true
+    ModElement me_identity;
+    me_identity.history_only = true;
+    me_identity.history.push_back(CondensedInteger(73));
+    EXPECT_TRUE(me_identity.is_one());
+
+    // Case B: n = 35 -> Should return false
+    ModElement me_not_identity;
+    me_not_identity.history_only = true;
+    me_not_identity.history.push_back(CondensedInteger(35));
+    EXPECT_FALSE(me_not_identity.is_one());
+
+    // Case C: Test when history_only is false
+    me_identity.history_only = false;
+    me_identity.n_mod_L = 1;
+    EXPECT_TRUE(me_identity.is_one());
+
+    me_identity.n_mod_L = 5;
+    EXPECT_FALSE(me_identity.is_one());
+}
+
+// 8. Test start_storing_n() state conversion
+TEST_F(ModElementTest, StartStoringNComputesResidueModL) {
+    // Set up Lambda = 2^3 * 3^2 = 72
+    ModElement::set({2, 3}, {3, 2});
+
+    ModElement me;
+    me.history_only = true;
+    me.history.push_back(CondensedInteger(10));
+    me.history.push_back(CondensedInteger(8)); // n = 80.  80 % 72 = 8
+
+    me.start_storing_n();
+
+    // The flag should flip to false
+    EXPECT_FALSE(me.history_only);
+    // n_mod_L should hold the correct computed residue (8)
+    EXPECT_EQ(me.n_mod_L, 8);
+}
+
+*/
