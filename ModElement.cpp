@@ -24,17 +24,16 @@ void ModElement::set(std::vector<long> primes_, std::vector<long> exponents_){
 
 ModElement::ModElement() {
 	history = std::vector<CondensedInteger>();
+	history_only = true;
 }
 
 // non-default constructor assumes we already know that p-1 | Lambda
 ModElement::ModElement(mpz_t p) {
 	history = std::vector<CondensedInteger>(1);
 
-	mpz_t p_minus_1;
-	mpz_init(p_minus_1);
-	mpz_sub_ui(p_minus_1, p, 1);
-	history.at(0) = CondensedInteger(p_minus_1);
-	mpz_clear(p_minus_1);
+	// note that CondensedInteger constructor will subtract 1 from p
+	history.at(0) = CondensedInteger(p);
+	history_only = true;
 }
 
 // multiply history to create n.  For times when you need n, but don't want to store it

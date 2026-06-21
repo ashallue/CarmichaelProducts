@@ -28,8 +28,11 @@ int main(){
 	
 	
 	bool ci = CI_testing();
-	bool me = ME_test_set();
+	bool me1 = ME_test_set();
 	std::cout << "ci result: " << ci << "\n";
-	std::cout << "me result: " << me << "\n";
+	std::cout << "me result: " << me1 << "\n";
+
+	bool me2 = ME_test_constructor();
+	std::cout << "constructor: " << me2 << "\n";
 	
 }

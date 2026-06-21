@@ -129,39 +129,35 @@ bool ME_test_set(){
 	return correct;
 }
 
-/*
-// Test Fixture for ModElement to manage setup and teardown
-class ModElementTest : public ::testing::Test {
-protected:
-    void SetUp() override {
-        // Reset static vectors before each test
-        ModElement::primes.clear();
-        ModElement::exponents.clear();
-    }
-
-    void TearDown() override {
-        ModElement::primes.clear();
-        ModElement::exponents.clear();
-    }
-};
-
-// 1. Test Static Set Method
-TEST_F(ModElementTest, StaticSetInitializesCorrectly) {
-    std::vector<long> test_primes = {2, 3};
-    std::vector<long> test_exponents = {3, 2}; // L = 2^3 * 3^2 = 72
-
+// test non-default constructor
+bool ME_test_constructor(){
+	std::vector<long> test_primes = {2, 3, 5};
+    std::vector<long> test_exponents = {3, 2, 1}; // L = 2^3 * 3^2 * 5^1
     ModElement::set(test_primes, test_exponents);
 
-    EXPECT_EQ(ModElement::primes, test_primes);
-    EXPECT_EQ(ModElement::exponents, test_exponents);
+	// create 5, 7, 31 and check that to_ZZ matches
+	mpz_t p1; mpz_t p2; mpz_t p3;
+	mpz_t output1; mpz_t output2; mpz_t output3;
+	mpz_inits(p1, p2, p3, output1, output2, output3, nullptr);
+	mpz_set_ui(p1, 5); mpz_set_ui(p2, 7); mpz_set_ui(p3, 31);
+
+	ModElement me1(p1);  ModElement me2(p2); ModElement me3(p3);
+	me1.to_mpz(output1); me2.to_mpz(output2); me3.to_mpz(output3);
+
+	gmp_printf ("Converting back to mpz should give 5, 7, 31: %Zd, %Zd, %Zd \n", output1, output2, output3);
+
+	// check that we get the same values back again after using to_mpz
+	bool check1 = mpz_cmp_ui(output1, 5) == 0;
+	bool check2 = mpz_cmp_ui(output2, 7) == 0;
+	bool check3 = mpz_cmp_ui(output3, 31) == 0;
+
+	mpz_clears(p1, p2, p3, output1, output2, output3, nullptr);
+	
+	// also check that history_only is set to true
+	return check1 && me1.history_only && check2 && me2.history_only && check3 && me3.history_only;
 }
 
-// 2. Test Default Constructor
-TEST_F(ModElementTest, DefaultConstructorState) {
-    ModElement me;
-    EXPECT_TRUE(me.history.empty());
-    // Implicitly history_only is usually expected to be true initially
-}
+/*
 
 // 3. Test Non-Default Constructor (ModElement(mpz_t p))
 TEST_F(ModElementTest, NonDefaultConstructorWithPrime) {
