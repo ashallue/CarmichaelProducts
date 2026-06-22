@@ -34,5 +34,7 @@ int main(){
 
 	bool me2 = ME_test_constructor();
 	std::cout << "constructor: " << me2 << "\n";
-	
+
+	bool me3 = ME_test_history1();
+	std::cout << "history1: " << me3 << "\n";
 }

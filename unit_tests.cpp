@@ -157,25 +157,33 @@ bool ME_test_constructor(){
 	return check1 && me1.history_only && check2 && me2.history_only && check3 && me3.history_only;
 }
 
+// test history and the product function, with history_only on
+bool ME_test_history1(){
+	std::vector<long> test_primes = {2, 3, 5};
+    std::vector<long> test_exponents = {3, 2, 1}; // L = 2^3 * 3^2 * 5^1
+    ModElement::set(test_primes, test_exponents);
+
+	// create 5, 7, 31 and set in the history
+	mpz_t p1; mpz_t p2; mpz_t p3;
+	mpz_t output1; mpz_t output2; mpz_t output3;
+	mpz_inits(p1, p2, p3, output1, output2, output3, nullptr);
+	mpz_set_ui(p1, 5); mpz_set_ui(p2, 7); mpz_set_ui(p3, 31);
+	ModElement me1(p1); ModElement me2(p2); ModElement me3(p3);
+	
+	// check history of me1 is only p1
+	bool check1 = me1.history.size() == 1;
+	CondensedInteger c1 = me1.history.at(0);
+	c1.to_mpz(output1);
+	check1 = check1 && (mpz_cmp_ui(output1, 5) == 0);
+
+	
+	
+	return check1;
+	
+}
+
 /*
 
-// 3. Test Non-Default Constructor (ModElement(mpz_t p))
-TEST_F(ModElementTest, NonDefaultConstructorWithPrime) {
-    mpz_t p;
-    mpz_init_set_ui(p, 7); // p = 7, so history should contain p-1 = 6
-
-    ModElement me(p);
-
-    ASSERT_EQ(me.history.size(), 1);
-
-    mpz_t history_val;
-    mpz_init(history_val);
-    me.history.at(0).to_mpz(history_val);
-
-    EXPECT_EQ(mpz_cmp_ui(history_val, 6), 0); // Should store p-1 (6)
-
-    mpz_clears(p, history_val, NULL);
-}
 
 // 4. Test conversion of history to mpz_t via to_mpz()
 TEST_F(ModElementTest, ToMpzMultipliesHistory) {

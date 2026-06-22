@@ -19,3 +19,4 @@ bool CI_testing();
 // unit tests for ModElement
 bool ME_test_set();
 bool ME_test_constructor();
+bool ME_test_history1();
