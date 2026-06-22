@@ -20,6 +20,14 @@ void ModElement::set(std::vector<long> primes_, std::vector<long> exponents_){
 	ModElement::primes = primes_;
 	ModElement::exponents = exponents_;
 	CondensedInteger::set(primes_,exponents_);
+
+	// compute Lambda
+	ModElement::Lambda = 1;
+	mpz_class power;
+	for(unsigned long i = 0; i < ModElement::primes.size(); ++i){
+		mpz_ui_pow_ui(power.get_mpz_t(), ModElement::primes.at(i), ModElement::exponents.at(i));
+		Lambda = Lambda * power;
+	}
 }
 
 ModElement::ModElement() {
@@ -109,21 +117,12 @@ bool ModElement::is_one(){
 		mpz_t n;  mpz_init(n);
 		this->to_mpz(n);
 
-		// calculate L
-		mpz_t Lambda; mpz_init(Lambda);
-		mpz_set_ui(Lambda, 1);
-		mpz_t pow; mpz_init(pow);
-		for(unsigned long i = 0; i < ModElement::primes.size(); ++i){
-			mpz_ui_pow_ui(pow, ModElement::primes.at(i), ModElement::exponents.at(i));
-			mpz_mul(Lambda, Lambda, pow);
-		}
-
 		// reduce n mod L
-		mpz_mod(n, n, Lambda);
+		mpz_mod(n, n, Lambda.get_mpz_t());
 		bool output = mpz_cmp_ui(n, 1) == 0;
 
 		// clean up and return
-		mpz_clears(n, Lambda, pow, nullptr);
+		mpz_clear(n);
 		return output;
 	}
 }
@@ -147,14 +146,14 @@ void ModElement::start_storing_n(){
 
 		// now multiply history together modulo Lambda
 		n_mod_L = 1;
-		mpz_t prod; mpz_init(prod);
+		mpz_t prod;  mpz_init(prod); 
 		for(unsigned long i = 0; i < history.size(); ++i){
 			history.at(i).to_mpz(prod);
 			n_mod_L = n_mod_L * mpz_class(prod);
-			n_mod_L = n_mod_L % mpz_class(Lambda);
+			n_mod_L = n_mod_L % Lambda;
 		}
 		
-		mpz_clears(Lambda, power, prod, nullptr);
+		mpz_clear(prod);
 	}
 }
 

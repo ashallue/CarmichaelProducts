@@ -27,6 +27,7 @@ class ModElement{
 		// static means only one instance of these variables is stored for all objects in the class
 	    static std::vector<long> primes; // primes in prime factorization of L
 	    static std::vector<long> exponents;  // exponents in the prime factorization of L
+		static mpz_class Lambda;  // the number whose factorization is given by primes and exponents
 
 		std::vector<CondensedInteger> history;  // records which elements this one is a product of
 
