@@ -279,101 +279,22 @@ bool ME_test_residue(){
 	return check1 && check2 && check3 && check4 && check5;
 }
 
-/*
+// combine all the above into one function call
+bool ME_test_all(){
+	bool me1 = ME_test_set();
+	std::cout << "me result: " << me1 << "\n";
 
+	bool me2 = ME_test_constructor();
+	std::cout << "constructor: " << me2 << "\n";
 
-// 5. Test Residue Calculation modulo prime powers
-TEST_F(ModElementTest, ResidueCalculatesCorrectModulo) {
-    // Set up Lambda = 2^3 * 3^2 = 72
-    ModElement::set({2, 3}, {3, 2});
+	bool me3 = ME_test_history1();
+	std::cout << "history1: " << me3 << "\n";
 
-    ModElement me;
-    me.history_only = true;
-    me.history.push_back(CondensedInteger(35)); // n = 35
+	bool me4 = ME_test_history2();
+	std::cout << "history2: " << me4 << "\n";
 
-    // Residue modulo index 0 (2^3 = 8): 35 % 8 = 3
-    EXPECT_EQ(me.residue(0), 3);
+	bool me5 = ME_test_residue();
+	std::cout << "residue test: " << me5 << "\n";
 
-    // Residue modulo index 1 (3^2 = 9): 35 % 9 = 8
-    EXPECT_EQ(me.residue(1), 8);
-
-    // Test index out of bounds
-    // (Cast to unsigned long to match the return value on error, which is -1 or ULONG_MAX)
-    EXPECT_EQ(me.residue(2), static_cast<unsigned long>(-1));
+	return me1 && me2 && me3 && me4 && me5;
 }
-
-// 6. Test get_omega() method
-TEST_F(ModElementTest, GetOmegaReturnsMaxNonOneIndex) {
-    // Set up Lambda = 2^3 * 3^2 = 72
-    ModElement::set({2, 3}, {3, 2});
-
-    // Case A: Residue is 1 modulo all prime powers (n = 1)
-    ModElement me_one;
-    me_one.history_only = true;
-    me_one.history.push_back(CondensedInteger(1));
-    EXPECT_EQ(me_one.get_omega(), -1);
-
-    // Case B: Residue is not 1 mod 2^3, but is 1 mod 3^2 (n = 10)
-    // 10 % 8 = 2 (not 1) -> Index 0 is not 1
-    // 10 % 9 = 1         -> Index 1 is 1
-    // Max index with residue != 1 is 0
-    ModElement me_ten;
-    me_ten.history_only = true;
-    me_ten.history.push_back(CondensedInteger(10));
-    EXPECT_EQ(me_ten.get_omega(), 0);
-
-    // Case C: Residue is 1 mod 2^3, but is not 1 mod 3^2 (n = 17)
-    // 17 % 8 = 1         -> Index 0 is 1
-    // 17 % 9 = 8 (not 1) -> Index 1 is not 1
-    // Max index with residue != 1 is 1
-    ModElement me_seventeen;
-    me_seventeen.history_only = true;
-    me_seventeen.history.push_back(CondensedInteger(17));
-    EXPECT_EQ(me_seventeen.get_omega(), 1);
-}
-
-// 7. Test is_one() method (both history_only and stored modes)
-TEST_F(ModElementTest, IsOneDetectsIdentity) {
-    // Set up Lambda = 2^3 * 3^2 = 72
-    ModElement::set({2, 3}, {3, 2});
-
-    // Case A: n = 73 (73 % 72 = 1) -> Should return true
-    ModElement me_identity;
-    me_identity.history_only = true;
-    me_identity.history.push_back(CondensedInteger(73));
-    EXPECT_TRUE(me_identity.is_one());
-
-    // Case B: n = 35 -> Should return false
-    ModElement me_not_identity;
-    me_not_identity.history_only = true;
-    me_not_identity.history.push_back(CondensedInteger(35));
-    EXPECT_FALSE(me_not_identity.is_one());
-
-    // Case C: Test when history_only is false
-    me_identity.history_only = false;
-    me_identity.n_mod_L = 1;
-    EXPECT_TRUE(me_identity.is_one());
-
-    me_identity.n_mod_L = 5;
-    EXPECT_FALSE(me_identity.is_one());
-}
-
-// 8. Test start_storing_n() state conversion
-TEST_F(ModElementTest, StartStoringNComputesResidueModL) {
-    // Set up Lambda = 2^3 * 3^2 = 72
-    ModElement::set({2, 3}, {3, 2});
-
-    ModElement me;
-    me.history_only = true;
-    me.history.push_back(CondensedInteger(10));
-    me.history.push_back(CondensedInteger(8)); // n = 80.  80 % 72 = 8
-
-    me.start_storing_n();
-
-    // The flag should flip to false
-    EXPECT_FALSE(me.history_only);
-    // n_mod_L should hold the correct computed residue (8)
-    EXPECT_EQ(me.n_mod_L, 8);
-}
-
-*/

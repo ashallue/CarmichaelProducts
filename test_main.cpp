@@ -28,19 +28,6 @@ int main(){
 	
 	
 	bool ci = CI_testing();
-	bool me1 = ME_test_set();
-	std::cout << "ci result: " << ci << "\n";
-	std::cout << "me result: " << me1 << "\n";
-
-	bool me2 = ME_test_constructor();
-	std::cout << "constructor: " << me2 << "\n";
-
-	bool me3 = ME_test_history1();
-	std::cout << "history1: " << me3 << "\n";
-
-	bool me4 = ME_test_history2();
-	std::cout << "history2: " << me4 << "\n";
-
-	bool me5 = ME_test_residue();
-	std::cout << "residue test: " << me5 << "\n";
+	bool me1 = ME_test_all();
+	std::cout << "testing ModElement: " << me1 << "\n";
 }
