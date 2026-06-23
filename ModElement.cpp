@@ -159,10 +159,10 @@ ModElement ModElement::product(ModElement& other){
 	// in either case, we need to concatenate the histories
 	result.history.reserve(sizethis + sizeother);
 	for(unsigned long i = 0; i < sizethis; ++i){
-		result.history.at(i) = this->history.at(i);
+		result.history.push_back(this->history.at(i));
 	}
 	for(unsigned long i = sizethis; i < sizethis + sizeother; ++i){
-		result.history.at(i) = other.history.at(i - sizethis);
+		result.history.push_back(other.history.at(i - sizethis));
 	}
 
 	// if we are storing n_mod_L, we need to update it with the new product residue

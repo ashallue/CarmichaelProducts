@@ -126,6 +126,11 @@ bool ME_test_set(){
 	if(ModElement::exponents.at(0) != 3 || ModElement::exponents.at(1) != 2 || ModElement::exponents.at(2) != 1){
 		correct = false;
 	}
+	// check that Lambda has value 360
+	if(ModElement::Lambda != 360){
+		correct = false;
+	}
+	
 	return correct;
 }
 
@@ -175,10 +180,22 @@ bool ME_test_history1(){
 	CondensedInteger c1 = me1.history.at(0);
 	c1.to_mpz(output1);
 	check1 = check1 && (mpz_cmp_ui(output1, 5) == 0);
+	me1.to_mpz(output1);
+	check1 = check1 && (mpz_cmp_ui(output1, 5) == 0);
 
+	// product with me2, check history and product
+	me1 = me1.product(me2);
+	bool check2 = me1.history.size() == 2;
+	me1.to_mpz(output2);
+	check2 = check2 && (mpz_cmp_ui(output2, 35) == 0);
+
+	// product with me3, check history and product
+	me1 = me1.product(me3);
+	bool check3 = me1.history.size() == 3;
+	me1.to_mpz(output3);
+	check3 = check3 && (mpz_cmp_ui(output3, 1085) == 0);
 	
-	
-	return check1;
+	return check1 && check2 && check3;
 	
 }
 
