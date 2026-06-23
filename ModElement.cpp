@@ -15,6 +15,7 @@ and turn it on if there are few ModElement objects with long histories.
 
 std::vector<long> ModElement::primes = std::vector<long>();
 std::vector<long> ModElement::exponents = std::vector<long>();
+mpz_class ModElement::Lambda = 1;
 
 void ModElement::set(std::vector<long> primes_, std::vector<long> exponents_){
 	ModElement::primes = primes_;
@@ -26,7 +27,7 @@ void ModElement::set(std::vector<long> primes_, std::vector<long> exponents_){
 	mpz_class power;
 	for(unsigned long i = 0; i < ModElement::primes.size(); ++i){
 		mpz_ui_pow_ui(power.get_mpz_t(), ModElement::primes.at(i), ModElement::exponents.at(i));
-		Lambda = Lambda * power;
+		ModElement::Lambda = ModElement::Lambda * power;
 	}
 }
 
@@ -135,22 +136,13 @@ void ModElement::start_storing_n(){
 	}else{
 		history_only = false;
 
-		// calculate Lambda
-		mpz_t Lambda; mpz_init(Lambda);
-		mpz_set_ui(Lambda, 1);
-		mpz_t power; mpz_init(power);
-		for(unsigned long i = 0; i < ModElement::primes.size(); ++i){
-			mpz_ui_pow_ui(power, ModElement::primes.at(i), ModElement::exponents.at(i));
-			mpz_mul(Lambda, Lambda, power);
-		}
-
 		// now multiply history together modulo Lambda
 		n_mod_L = 1;
 		mpz_t prod;  mpz_init(prod); 
 		for(unsigned long i = 0; i < history.size(); ++i){
 			history.at(i).to_mpz(prod);
 			n_mod_L = n_mod_L * mpz_class(prod);
-			n_mod_L = n_mod_L % Lambda;
+			n_mod_L = n_mod_L % ModElement::Lambda;
 		}
 		
 		mpz_clear(prod);
@@ -158,7 +150,28 @@ void ModElement::start_storing_n(){
 }
 
 // return the product of the current ModElement with another, modulo L
-ModElement ModElement::product(ModElement& other, mpz_t L){
+ModElement ModElement::product(ModElement& other){
 	ModElement result;
+	
+	unsigned long sizethis = this->history.size();
+	unsigned long sizeother = other.history.size();
+		
+	// in either case, we need to concatenate the histories
+	result.history.reserve(sizethis + sizeother);
+	for(unsigned long i = 0; i < sizethis; ++i){
+		result.history.at(i) = this->history.at(i);
+	}
+	for(unsigned long i = sizethis; i < sizethis + sizeother; ++i){
+		result.history.at(i) = other.history.at(i - sizethis);
+	}
+
+	// if we are storing n_mod_L, we need to update it with the new product residue
+	if(!history_only){
+		
+		result.n_mod_L = this->n_mod_L * other.n_mod_L;
+		result.n_mod_L = result.n_mod_L % ModElement::Lambda;
+		result.history_only = false;
+	}
+		
 	return result;
 }

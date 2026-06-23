@@ -57,7 +57,7 @@ class ModElement{
 		// flip the history_only flag to false, calculate n_mod_L and store it in the attribute
 		void start_storing_n();
 		// return the product of the current ModElement with another, modulo L
-		ModElement product(ModElement& other, mpz_t L);
+		ModElement product(ModElement& other);
 };
 
 #endif
