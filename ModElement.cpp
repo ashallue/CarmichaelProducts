@@ -97,12 +97,17 @@ unsigned long ModElement::residue(unsigned long index){
 
 // return the max index such that the residue modulo p_i^e_i is not 1
 long ModElement::get_omega(){
+	if (ModElement::primes.empty()) {
+        return -1;
+    }
+	
 	long index = ModElement::primes.size() - 1;
 	unsigned long res = residue(index);
 	while(index > -1 && res == 1){
 		index--;
-		res = residue(index);
+		if(index >= 0) res = residue(index);
 	}
+	
 	return index;
 	
 }

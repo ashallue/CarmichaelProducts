@@ -40,4 +40,7 @@ int main(){
 
 	bool me4 = ME_test_history2();
 	std::cout << "history2: " << me4 << "\n";
+
+	bool me5 = ME_test_residue();
+	std::cout << "residue test: " << me5 << "\n";
 }

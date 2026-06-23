@@ -194,6 +194,8 @@ bool ME_test_history1(){
 	bool check3 = me1.history.size() == 3;
 	me1.to_mpz(output3);
 	check3 = check3 && (mpz_cmp_ui(output3, 1085) == 0);
+
+	mpz_clears(p1, p2, p3, output1, output2, output3, nullptr);
 	
 	return check1 && check2 && check3;
 }
@@ -238,27 +240,47 @@ bool ME_test_history2(){
 	// n should be 7 * 31 * 41 = 8897, n_mod_L should be 8897 % 360 = 257
 	check3 = check3 && (mpz_cmp_ui(output3, 8897) == 0);
 	check3 = check3 && (me1.n_mod_L == (8897 % ModElement::Lambda));
+
+	mpz_clears(p1, p2, p3, output1, output2, output3, nullptr);
 	
 	return check1 && check2 && check3;
 }
 
+// test residue and omega function
+bool ME_test_residue(){
+	std::vector<long> test_primes = {2, 3, 5};
+    std::vector<long> test_exponents = {3, 2, 1}; // L = 2^3 * 3^2 * 5^1
+    ModElement::set(test_primes, test_exponents);
+
+	// create 7, 31, 41, 361 and set in the history
+	mpz_t p1; mpz_t p2; mpz_t p3; mpz_t p4;
+	mpz_inits(p1, p2, p3, p4, nullptr);
+	mpz_set_ui(p1, 7); mpz_set_ui(p2, 31); mpz_set_ui(p3, 41); mpz_set_ui(p4, 361);
+	ModElement me1(p1); ModElement me2(p2); ModElement me3(p3); ModElement me4(p4);
+
+	// residues of 41 for indices 0, 1, 2 are 1, 5, 1
+	bool check1 = me3.residue(0) == 1 && me3.residue(1) == 5 && me3.residue(2) == 1;
+
+	// residues of 31 for indices 0, 1, 2 are 7, 4, 1
+	bool check2 = me2.residue(0) == 7 && me2.residue(1) == 4 && me2.residue(2) == 1;
+
+	// multiply 7 by 31, residues now are 1, 1, 2
+	me1 = me1.product(me2);
+	bool check3 = me1.residue(0) == 1 && me1.residue(1) == 1 && me1.residue(2) == 2;
+
+	// check values for Omega.  Should be 2, 1, 1, -1
+	bool check4 = me1.get_omega() == 2 && me2.get_omega() == 1 && me3.get_omega() == 1 && me4.get_omega() == -1;
+
+	// check that me4 is identified as 1 but me1, me2, me3 aren't
+	bool check5 = me4.is_one() && !me1.is_one() && !me2.is_one() && !me3.is_one();
+	
+	mpz_clears(p1, p2, p3, p4, nullptr);
+
+	return check1 && check2 && check3 && check4 && check5;
+}
+
 /*
 
-
-// 4. Test conversion of history to mpz_t via to_mpz()
-TEST_F(ModElementTest, ToMpzMultipliesHistory) {
-    ModElement me;
-    me.history.push_back(CondensedInteger(5));
-    me.history.push_back(CondensedInteger(3));
-    me.history.push_back(CondensedInteger(2)); // Product should be 5 * 3 * 2 = 30
-
-    mpz_t result;
-    mpz_init(result);
-    me.to_mpz(result);
-
-    EXPECT_EQ(mpz_cmp_ui(result, 30), 0);
-    mpz_clear(result);
-}
 
 // 5. Test Residue Calculation modulo prime powers
 TEST_F(ModElementTest, ResidueCalculatesCorrectModulo) {

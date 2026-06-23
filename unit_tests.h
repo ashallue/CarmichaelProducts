@@ -21,3 +21,4 @@ bool ME_test_set();
 bool ME_test_constructor();
 bool ME_test_history1();
 bool ME_test_history2();
+bool ME_test_residue();
