@@ -150,6 +150,7 @@ void ModElement::start_storing_n(){
 }
 
 // return the product of the current ModElement with another, modulo L
+// will update n_mod_L only if both this and other have the history_only flag turned off
 ModElement ModElement::product(ModElement& other){
 	ModElement result;
 	
@@ -166,8 +167,7 @@ ModElement ModElement::product(ModElement& other){
 	}
 
 	// if we are storing n_mod_L, we need to update it with the new product residue
-	if(!history_only){
-		
+	if(!history_only && !other.history_only){
 		result.n_mod_L = this->n_mod_L * other.n_mod_L;
 		result.n_mod_L = result.n_mod_L % ModElement::Lambda;
 		result.history_only = false;

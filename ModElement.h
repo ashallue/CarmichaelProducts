@@ -6,6 +6,8 @@ a single prime p that satisfies p-1 | Lambda.
 ModElement is designed to represent an arbitrary element in (Z/LambdaZ)*.
 There is a flag which designates whether the actual residue is stored or not.  If not, 
 one can recreate the residue by multiplying all the integers in the history modulo Lambda.
+ModElement assumes that every residue in the history is relatively prime to Lambda, without checking.
+If that assumption is violated, everything will work, but producting will leave the mult group.
 
 One should turn the flag off if there are many ModElement objects with short histories, 
 and turn it on if there are few ModElement objects with long histories.
@@ -57,6 +59,7 @@ class ModElement{
 		// flip the history_only flag to false, calculate n_mod_L and store it in the attribute
 		void start_storing_n();
 		// return the product of the current ModElement with another, modulo L
+		// will update n_mod_L only if both this and other have the history_only flag turned off
 		ModElement product(ModElement& other);
 };
 

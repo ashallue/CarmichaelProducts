@@ -196,7 +196,50 @@ bool ME_test_history1(){
 	check3 = check3 && (mpz_cmp_ui(output3, 1085) == 0);
 	
 	return check1 && check2 && check3;
+}
+
+// test history and the product function, with history_only off
+bool ME_test_history2(){
+	std::vector<long> test_primes = {2, 3, 5};
+    std::vector<long> test_exponents = {3, 2, 1}; // L = 2^3 * 3^2 * 5^1
+    ModElement::set(test_primes, test_exponents);
+
+	// create 7, 31, 41 and set in the history
+	mpz_t p1; mpz_t p2; mpz_t p3;
+	mpz_t output1; mpz_t output2; mpz_t output3;
+	mpz_inits(p1, p2, p3, output1, output2, output3, nullptr);
+	mpz_set_ui(p1, 7); mpz_set_ui(p2, 31); mpz_set_ui(p3, 41);
+	ModElement me1(p1); ModElement me2(p2); ModElement me3(p3);
+
+	// flip the flag
+	me1.start_storing_n();  me2.start_storing_n();  me3.start_storing_n();
 	
+	// check history of me1 is only p1
+	bool check1 = me1.history.size() == 1;
+	CondensedInteger c1 = me1.history.at(0);
+	c1.to_mpz(output1);
+	check1 = check1 && (mpz_cmp_ui(output1, 7) == 0);
+	me1.to_mpz(output1);
+	check1 = check1 && (mpz_cmp_ui(output1, 7) == 0);
+	check1 = check1 && (me1.n_mod_L == 7);
+
+	// product with me2, check history and product
+	me1 = me1.product(me2);
+	bool check2 = me1.history.size() == 2;
+	me1.to_mpz(output2);
+	check2 = check2 && (mpz_cmp_ui(output2, 217) == 0);
+	check2 = check2 && (me1.n_mod_L == 217);
+
+	// product with me3, check history and product
+	me1 = me1.product(me3);
+	bool check3 = me1.history.size() == 3;
+	me1.to_mpz(output3);
+
+	// n should be 7 * 31 * 41 = 8897, n_mod_L should be 8897 % 360 = 257
+	check3 = check3 && (mpz_cmp_ui(output3, 8897) == 0);
+	check3 = check3 && (me1.n_mod_L == (8897 % ModElement::Lambda));
+	
+	return check1 && check2 && check3;
 }
 
 /*

@@ -37,4 +37,7 @@ int main(){
 
 	bool me3 = ME_test_history1();
 	std::cout << "history1: " << me3 << "\n";
+
+	bool me4 = ME_test_history2();
+	std::cout << "history2: " << me4 << "\n";
 }
