@@ -6,7 +6,8 @@
 #include <memory>
 #include <gmp.h>
 #include <gmpxx.h>
-#include <many_carmichaels.h>
+#include "many_carmichaels.h"
+#include "gen_div.h"
 
 
 int main(){
@@ -31,4 +32,5 @@ int main(){
 	bool ci = CI_testing();
 	bool me1 = ME_test_all();
 	std::cout << "testing ModElement: " << me1 << "\n";
+	std::cout << "\n\n";
 }
