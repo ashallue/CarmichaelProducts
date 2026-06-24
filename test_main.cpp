@@ -22,15 +22,20 @@ int main(){
 	// long exponents_[] = {16,7,5,4,3,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
 	// Table 4, Loh/Niebuhr, entry 3
-	long primes_[] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43}; 
-	long exponents_[] = {14,7,4,2,2,2,1,1,1,1,1,1,1,1};
-	std::vector<long> primes (primes_, primes_ + sizeof(primes_)/sizeof(long));
-	std::vector<long> exponents (exponents_, exponents_ + sizeof(exponents_)/sizeof(long));
+	unsigned long primes_[] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43}; 
+	unsigned long exponents_[] = {14,7,4,2,2,2,1,1,1,1,1,1,1,1};
+	std::vector<unsigned long> primes (primes_, primes_ + sizeof(primes_)/sizeof(long));
+	std::vector<unsigned long> exponents (exponents_, exponents_ + sizeof(exponents_)/sizeof(long));
 	CondensedInteger::set(primes, exponents);
-	
+	char outfileName1 [100];
+    strcpy(outfileName1, "primes.txt");
+    char outfileName2 [100];
+    strcpy(outfileName2, "product.txt");
 	
 	bool ci = CI_testing();
 	bool me1 = ME_test_all();
 	std::cout << "testing ModElement: " << me1 << "\n";
 	std::cout << "\n\n";
+
+	generateDivisors(primes, exponents, -1, outfileName1, outfileName2, false);
 }

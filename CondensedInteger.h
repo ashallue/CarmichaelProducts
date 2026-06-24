@@ -25,12 +25,12 @@ class CondensedInteger {
 		std::vector<bool> rep;
 
 		// lambda represented as the product of primes to exponents
-		static std::vector<long> primes;
-		static std::vector<long> exponents;
+		static std::vector<unsigned long> primes;
+		static std::vector<unsigned long> exponents;
 
 	public:
 		// decided against pass-by-ref here. These are comparatively small, and copies are safer
-		static void set(std::vector<long> primes_, std::vector<long> exponents_);
+		static void set(std::vector<unsigned long> primes_, std::vector<unsigned long> exponents_);
 
 	CondensedInteger();
   

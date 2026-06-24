@@ -13,11 +13,11 @@ and turn it on if there are few ModElement objects with long histories.
 
 #include "ModElement.h"
 
-std::vector<long> ModElement::primes = std::vector<long>();
-std::vector<long> ModElement::exponents = std::vector<long>();
+std::vector<unsigned long> ModElement::primes;
+std::vector<unsigned long> ModElement::exponents;
 mpz_class ModElement::Lambda = 1;
 
-void ModElement::set(std::vector<long> primes_, std::vector<long> exponents_){
+void ModElement::set(std::vector<unsigned long> primes_, std::vector<unsigned long> exponents_){
 	ModElement::primes = primes_;
 	ModElement::exponents = exponents_;
 	CondensedInteger::set(primes_,exponents_);

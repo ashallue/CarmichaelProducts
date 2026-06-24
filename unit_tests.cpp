@@ -7,10 +7,10 @@ Andrew Shallue, June 2026
 // test CondensedInteger by converting random divisors of a large Lambda
 bool CI_convert_random(unsigned long num_trials) {
 	// primes and exponents corresponding to 10 billion prime run
-	long primes_[] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97};
-	long exponents_[] = {16,7,5,4,3,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-	std::vector<long> primes (primes_, primes_ + sizeof(primes_)/sizeof(long));
-	std::vector<long> exponents (exponents_, exponents_ + sizeof(exponents_)/sizeof(long));
+	unsigned long primes_[] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97};
+	unsigned long exponents_[] = {16,7,5,4,3,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+	std::vector<unsigned long> primes (primes_, primes_ + sizeof(primes_)/sizeof(long));
+	std::vector<unsigned long> exponents (exponents_, exponents_ + sizeof(exponents_)/sizeof(long));
 	CondensedInteger::set(primes, exponents);
 	
 	// number to be created such that n-1 divides lambda
@@ -56,10 +56,10 @@ bool CI_convert_random(unsigned long num_trials) {
 // test min and max divisors, make sure conversion works
 bool CI_convert_extremes(){
 	// primes and exponents corresponding to 10 billion prime run
-	long primes_[] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97};
-	long exponents_[] = {16,7,5,4,3,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-	std::vector<long> primes (primes_, primes_ + sizeof(primes_)/sizeof(long));
-	std::vector<long> exponents (exponents_, exponents_ + sizeof(exponents_)/sizeof(long));
+	unsigned long primes_[] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97};
+	unsigned long exponents_[] = {16,7,5,4,3,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+	std::vector<unsigned long> primes (primes_, primes_ + sizeof(primes_)/sizeof(long));
+	std::vector<unsigned long> exponents (exponents_, exponents_ + sizeof(exponents_)/sizeof(long));
 	CondensedInteger::set(primes, exponents);
 	
 	// number to be created such that n-1 divides lambda
@@ -110,8 +110,8 @@ I don't want to rely on that, so I'm rewriting.  So test ideas from gemini, code
 
 // test set method for ModElement
 bool ME_test_set(){
-	std::vector<long> test_primes = {2, 3, 5};
-    std::vector<long> test_exponents = {3, 2, 1}; // L = 2^3 * 3^2 * 5^1
+	std::vector<unsigned long> test_primes = {2, 3, 5};
+    std::vector<unsigned long> test_exponents = {3, 2, 1}; // L = 2^3 * 3^2 * 5^1
     ModElement::set(test_primes, test_exponents);
 
 	bool correct = true;
@@ -136,8 +136,8 @@ bool ME_test_set(){
 
 // test non-default constructor
 bool ME_test_constructor(){
-	std::vector<long> test_primes = {2, 3, 5};
-    std::vector<long> test_exponents = {3, 2, 1}; // L = 2^3 * 3^2 * 5^1
+	std::vector<unsigned long> test_primes = {2, 3, 5};
+    std::vector<unsigned long> test_exponents = {3, 2, 1}; // L = 2^3 * 3^2 * 5^1
     ModElement::set(test_primes, test_exponents);
 
 	// create 5, 7, 31 and check that to_ZZ matches
@@ -164,8 +164,8 @@ bool ME_test_constructor(){
 
 // test history and the product function, with history_only on
 bool ME_test_history1(){
-	std::vector<long> test_primes = {2, 3, 5};
-    std::vector<long> test_exponents = {3, 2, 1}; // L = 2^3 * 3^2 * 5^1
+	std::vector<unsigned long> test_primes = {2, 3, 5};
+    std::vector<unsigned long> test_exponents = {3, 2, 1}; // L = 2^3 * 3^2 * 5^1
     ModElement::set(test_primes, test_exponents);
 
 	// create 5, 7, 31 and set in the history
@@ -202,8 +202,8 @@ bool ME_test_history1(){
 
 // test history and the product function, with history_only off
 bool ME_test_history2(){
-	std::vector<long> test_primes = {2, 3, 5};
-    std::vector<long> test_exponents = {3, 2, 1}; // L = 2^3 * 3^2 * 5^1
+	std::vector<unsigned long> test_primes = {2, 3, 5};
+    std::vector<unsigned long> test_exponents = {3, 2, 1}; // L = 2^3 * 3^2 * 5^1
     ModElement::set(test_primes, test_exponents);
 
 	// create 7, 31, 41 and set in the history
@@ -248,8 +248,8 @@ bool ME_test_history2(){
 
 // test residue and omega function
 bool ME_test_residue(){
-	std::vector<long> test_primes = {2, 3, 5};
-    std::vector<long> test_exponents = {3, 2, 1}; // L = 2^3 * 3^2 * 5^1
+	std::vector<unsigned long> test_primes = {2, 3, 5};
+    std::vector<unsigned long> test_exponents = {3, 2, 1}; // L = 2^3 * 3^2 * 5^1
     ModElement::set(test_primes, test_exponents);
 
 	// create 7, 31, 41, 361 and set in the history

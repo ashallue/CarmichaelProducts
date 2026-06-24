@@ -27,8 +27,8 @@ class ModElement{
 	public:
 	    // this static information needs to be initialized before any members of the class are created
 		// static means only one instance of these variables is stored for all objects in the class
-	    static std::vector<long> primes; // primes in prime factorization of L
-	    static std::vector<long> exponents;  // exponents in the prime factorization of L
+	    static std::vector<unsigned long> primes; // primes in prime factorization of L
+	    static std::vector<unsigned long> exponents;  // exponents in the prime factorization of L
 		static mpz_class Lambda;  // the number whose factorization is given by primes and exponents
 
 		std::vector<CondensedInteger> history;  // records which elements this one is a product of
@@ -41,7 +41,7 @@ class ModElement{
 
 	public:
 		// decided against pass-by-ref here. These are comparatively small, and copies are safer
-		static void set(std::vector<long> primes_, std::vector<long> exponents_);
+		static void set(std::vector<unsigned long> primes_, std::vector<unsigned long> exponents_);
 
 		ModElement(); // default constructor
 		// non-default constructor assumes we already know that p-1 | Lambda

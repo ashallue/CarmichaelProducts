@@ -1,9 +1,9 @@
 #include "CondensedInteger.h"
 
-std::vector<long> CondensedInteger::primes = std::vector<long>();
-std::vector<long> CondensedInteger::exponents = std::vector<long>();
+std::vector<unsigned long> CondensedInteger::primes;
+std::vector<unsigned long> CondensedInteger::exponents;
 
-void CondensedInteger::set(std::vector<long> primes_, std::vector<long> exponents_){
+void CondensedInteger::set(std::vector<unsigned long> primes_, std::vector<unsigned long> exponents_){
     CondensedInteger::primes = primes_;
     CondensedInteger::exponents = exponents_;
 }
