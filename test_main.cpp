@@ -6,6 +6,7 @@
 #include <memory>
 #include <gmp.h>
 #include <gmpxx.h>
+#include <many_carmichaels.h>
 
 
 int main(){
